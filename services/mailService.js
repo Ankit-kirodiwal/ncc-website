@@ -33,6 +33,21 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   const fromAddress = process.env.MAIL_FROM || process.env.MAIL_USER;
 
   try {
+    // Verify SMTP connection before sending to get early, clear errors in logs
+    try {
+      await transporter.verify();
+    } catch (verifyErr) {
+      console.error('SMTP verification failed', {
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        secure: process.env.MAIL_SECURE || (process.env.MAIL_PORT === '465'),
+        user: process.env.MAIL_USER,
+        error: verifyErr && verifyErr.message ? verifyErr.message : verifyErr
+      });
+      // rethrow so caller receives the error and API can return 500
+      throw verifyErr;
+    }
+
     await transporter.sendMail({
       from: fromAddress,
       to: toEmail,
@@ -42,7 +57,7 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
         "",
         `Your OTP for NCC portal password reset is: ${otp}`,
         "This OTP is valid for 10 minutes.",
-        "If you did not request this reset, please ignore this email."
+        "If you did not request this reset, please report to admin ."
       ].join("\n"),
       html: `
       <div style="font-family:Segoe UI,Arial,sans-serif;color:#15314f;line-height:1.6">
