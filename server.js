@@ -16,13 +16,11 @@ const app = express();
 // ==================== CORS CONFIGURATION ====================
 // IMPORTANT: CORS must be set up BEFORE routes
 const corsOptions = {
-  origin: ["http://localhost:5000","http://127.0.0.1:5000", "http://localhost:3000", 
-    "http://127.0.0.1:5501", "http://10.186.138.5:5500"],    // Allow both localhost and IP access
+  origin: ["https://ncc-project.onrender.com", "http://localhost:5000", "http://localhost:3000"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 };
-
 app.use(cors(corsOptions));
 
 // ==================== MIDDLEWARE ====================
