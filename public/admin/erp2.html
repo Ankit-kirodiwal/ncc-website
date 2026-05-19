@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>NCC ERP Management System</title>
+  <link rel="stylesheet" href="erp2.css">
+  <script defer src="erp2.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">NCC Admin Console</p>
+        <h1>ERP Management System</h1>
+      </div>
+      <div class="topbar-actions">
+        <span id="adminName" class="admin-pill">Admin</span>
+        <button type="button" class="btn btn-ghost" onclick="logout()">Logout</button>
+      </div>
+    </header>
+
+    <div id="messageBox" class="message-box" aria-live="polite"></div>
+
+    <nav class="tabs" aria-label="Admin sections">
+      <button class="tab-btn active" type="button" onclick="showTab('attendance', event)">Attendance</button>
+      <button class="tab-btn" type="button" onclick="showTab('history', event)">History</button>
+      <button class="tab-btn" type="button" onclick="showTab('students', event)">Manage Students</button>
+      <button class="tab-btn" type="button" onclick="showTab('promotion', event)">Promotion</button>
+    </nav>
+
+    <main class="tab-content">
+      <section id="attendance" class="tab active">
+        <div class="section-header">
+          <div>
+            <h2>Attendance Panel</h2>
+          </div>
+        </div>
+
+        <div class="panel filter-grid">
+          <div class="field">
+            <label for="yearFilter">Year Filter</label>
+            <select id="yearFilter">
+              <option value="">All Years</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="passout">Passed Out</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="attendanceDate">Date</label>
+            <input type="date" id="attendanceDate">
+          </div>
+
+          <div class="field action-field">
+            <button type="button" class="btn btn-primary" 
+            onclick="loadClassAttendance()">Load Class</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table id="attendanceTable">
+              <thead>
+                <tr>
+                  <th>Reg No</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Remarks</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceBody">
+                <tr>
+                  <td colspan="4" class="text-center">
+                    Select filters and click Load Class.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="button-row">
+            <button type="button" class="btn btn-success" 
+            onclick="submitAttendance()">Submit Attendance</button>
+            <button type="button" class="btn btn-secondary" 
+            onclick="clearAttendance()">Clear</button>
+          </div>
+        </div>
+
+        <div id="passoutDeleteContainer" class="stack"></div>
+      </section>
+
+      <section id="history" class="tab">
+        <div class="section-header">
+          <div>
+            <h2>Attendance History</h2>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="panel">
+            <h3>Single Student History</h3>
+            <div class="filter-grid">
+              <div class="field grow">
+                <label  for="historyStudentSelect">Student </label>
+                <select id="historyStudentSelect">
+                  <option value="">Select a student</option>
+                </select>
+              </div>
+
+              <div class="field action-field">
+                <button type="button" class="btn btn-primary" onclick="loadSingleStudentHistory()">View History</button>
+              </div>
+            </div>
+
+            <div id="singleHistoryContainer" class="placeholder-box">
+              Select a student to view their last 30 attendance records.
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Bulk Year Attendance Report</h3>
+            <div class="filter-grid">
+              <div class="field">
+                <label for="bulkHistoryYear">Year</label>
+                <select id="bulkHistoryYear">
+                  <option value="">Select Year</option>
+                  <option value="1">Year 1</option>
+                  <option value="2">Year 2</option>
+                  <option value="3">Year 3</option>
+                  <option value="passout">Passed Out</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="historyStartDate">Start Date</label>
+                <input type="date" id="historyStartDate">
+              </div>
+
+              <div class="field">
+                <label for="historyEndDate">End Date</label>
+                <input type="date" id="historyEndDate">
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button type="button" class="btn btn-primary" onclick="loadBulkHistory()">Generate Report</button>
+              <button type="button" class="btn btn-secondary" onclick="downloadBulkHistoryAsExcel()">Download Excel</button>
+            </div>
+
+            <div id="bulkHistoryStats" class="placeholder-box">
+              Select a year to view attendance report details.
+            </div>
+
+            <div class="table-wrap">
+              <table id="bulkHistoryTable" class="hidden">
+                <thead>
+                  <tr>
+                    <th>Reg No</th>
+                    <th>Name</th>
+                    <th>Total</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Leave</th>
+                    <th>Attendance %</th>
+                  </tr>
+                </thead>
+                <tbody id="bulkHistoryBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="students" class="tab">
+        <div class="section-header">
+          <div>
+            <h2>Manage Students</h2>
+            <p>Filter, approve, add and remove student records.</p>
+          </div>
+        </div>
+
+        <div class="panel filter-grid">
+          <div class="field">
+            <label for="studentYearFilter">Year Filter</label>
+            <select id="studentYearFilter">
+              <option value="">All Years</option>
+              <option value="1">Year 1</option>
+              <option value="2">Year 2</option>
+              <option value="3">Year 3</option>
+              <option value="passout">Passed Out</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="studentStatusFilter">Status Filter</label>
+            <select id="studentStatusFilter">
+              <option value="">All Status</option>
+              <option value="approved">Approved</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
+
+          <div class="field action-field">
+            <button type="button" class="btn btn-primary" onclick="loadAllStudents()">Load Students</button>
+          </div>
+
+          <div class="field action-field">
+            <button type="button" class="btn btn-success" onclick="openAddStudentModal()">Add New Student</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Reg No</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Year</th>
+                  <th>Status</th>
+                  <th>Attendance %</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentsBody">
+                <tr>
+                  <td colspan="7" class="text-center">Click Load Students to display records.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="promotion" class="tab">
+        <div class="section-header">
+          <div>
+            <h2>Year Promotion</h2>
+            <p>Promote one student, process a full year, and inspect promotion history.</p>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="panel">
+            <h3>Promote Single Student</h3>
+            <div class="field">
+              <label for="studentSelect">Student</label>
+              <select id="studentSelect">
+                <option value="">Select student</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="promotionRemarks">Remarks</label>
+              <textarea id="promotionRemarks" rows="4" placeholder="Optional promotion or passout remarks"></textarea>
+            </div>
+
+            <div id="promotionInfo" class="info-card hidden"></div>
+
+            <div class="button-row">
+              <button type="button" class="btn btn-warning" onclick="promoteStudentModal()">Promote to Next Year</button>
+              <button type="button" class="btn btn-danger" onclick="promoteYear3ToPassout()">Mark as PASSOUT</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>Bulk Promotion</h3>
+            <div class="field">
+              <label for="bulkPromoteYear">Year to Promote</label>
+              <select id="bulkPromoteYear">
+                <option value="">Select Year</option>
+                <option value="1">Year 1 to Year 2</option>
+                <option value="2">Year 2 to Year 3</option>
+                <option value="3">Year 3 to PASSOUT</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="bulkPromotionRemarks">Remarks</label>
+              <textarea id="bulkPromotionRemarks" rows="4" placeholder="Optional remarks for all selected students"></textarea>
+            </div>
+
+            <label class="check-row">
+              <input type="checkbox" id="confirmBulkPromote">
+              <span>I confirm to process all selected students.</span>
+            </label>
+
+            <div class="button-row">
+              <button type="button" id="bulkPromoteBtn" class="btn btn-danger" onclick="bulkPromoteStudents()" disabled>Execute Bulk Promotion</button>
+            </div>
+
+            <div id="bulkPromotionResult" class="placeholder-box">Bulk results will appear here.</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Promotion History</h3>
+          <div class="filter-grid">
+            <div class="field grow">
+              <label for="promotionHistorySelect">Student</label>
+              <select id="promotionHistorySelect">
+                <option value="">Select student</option>
+              </select>
+            </div>
+
+            <div class="field action-field">
+              <button type="button" class="btn btn-primary" onclick="loadPromotionHistory()">Load History</button>
+            </div>
+          </div>
+
+          <div id="promotionHistoryContainer" class="placeholder-box">
+            Select a student to review promotion history.
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="addStudentModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h3>Add New Student</h3>
+          <p>Year and enrollment year will be calculated from the regimental number.</p>
+        </div>
+        <button type="button" class="icon-btn" onclick="closeAddStudentModal()">×</button>
+      </div>
+
+      <form id="addStudentForm" class="modal-form">
+        <div class="field">
+          <label for="regimentalNo">Regimental No</label>
+          <input type="text" id="regimentalNo" placeholder="RJ2026SDA001" required>
+        </div>
+
+        <div id="studentAutoDetails" class="helper-box">Enter a regimental number to preview year details.</div>
+
+        <div class="field">
+          <label for="studentName">Full Name</label>
+          <input type="text" id="studentName" required>
+        </div>
+
+        <div class="field">
+          <label for="fatherName">Father's Name</label>
+          <input type="text" id="fatherName" required>
+        </div>
+
+        <div class="field">
+          <label for="studentEmail">Email</label>
+          <input type="email" id="studentEmail" required>
+        </div>
+
+        <div class="field">
+          <label for="studentDob">Date of Birth</label>
+          <input type="date" id="studentDob" required>
+        </div>
+
+        <div class="field">
+          <label for="studentPassword">Password</label>
+          <input type="password" id="studentPassword" required>
+        </div>
+
+        <div class="button-row">
+          <button type="submit" class="btn btn-success">Add Student</button>
+          <button type="button" class="btn btn-secondary" onclick="closeAddStudentModal()">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>

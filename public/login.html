@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login / Register</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .auth-container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border: none;
+      cursor: pointer;
+      background: #ddd;
+      border-radius: 8px;
+    }
+
+    .tab-btn.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .form-section {
+      display: none;
+    }
+
+    .form-section.active {
+      display: block;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    input,
+    button {
+      padding: 12px;
+      font-size: 16px;
+    }
+
+    input {
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+
+    .back-home {
+      display: inline-block;
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .panel-header h2 {
+      margin: 0;
+    }
+
+    .inline-link {
+      padding: 0;
+      background: transparent;
+      border: none;
+      color: #0f62d6;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .inline-link:hover {
+      text-decoration: underline;
+    }
+
+    .password-field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1px;
+      align-items: center;
+    }
+
+    .password-toggle {
+      min-width: 72px;
+      background: #e8f0ff;
+      color: #0f62d6;
+      font-weight: 700;
+    }
+
+    .forgot-panel {
+      margin-top: 16px;
+      padding: 18px;
+      border: 1px solid #d8e5ff;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef5ff 100%);
+    }
+
+    .forgot-panel[hidden] {
+      display: none;
+    }
+
+    .forgot-panel h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .forgot-panel p {
+      margin: 0 0 14px;
+      color: #4b6281;
+      line-height: 1.5;
+    }
+
+    .forgot-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .forgot-status {
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #eef5ff;
+      color: #1f4d82;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .forgot-status[hidden] {
+      display: none;
+    }
+
+    .forgot-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .secondary-btn {
+      background: #dfe8f6;
+      color: #254568;
+    }
+
+    @media (max-width: 640px) {
+      .auth-container {
+        margin: 20px;
+        padding: 22px;
+      }
+
+      .password-field {
+        grid-template-columns: minmax(0, 1fr) auto;
+      }
+
+      .password-toggle {
+        width: auto;
+        min-width: 72px;
+      }
+
+      .forgot-actions button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <a href="index.html" class="back-home">&larr; Back to Home</a>
+    <h1>Login / Register</h1>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('studentLogin')">Student Login</button>
+      <button class="tab-btn" onclick="showTab('studentRegister')">Student Register</button>
+      <button class="tab-btn" onclick="showTab('adminLogin')">Admin Login</button>
+    </div>
+
+    <div id="studentLogin" class="form-section active">
+      <div class="panel-header">
+        <h2>Student Login</h2>
+        <button type="button" class="inline-link" id="forgotPasswordToggle">Forgot Password?</button>
+      </div>
+      <form id="studentLoginForm">
+        <input type="text" id="studentLoginId" placeholder="Email or Regimental No" required />
+        <div class="password-field">
+          <input type="password" id="studentLoginPassword" placeholder="Password" required />
+          <button type="button" class="password-toggle" onclick="togglePassword('studentLoginPassword')">Show</button>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+
+      <div id="forgotPasswordPanel" class="forgot-panel" hidden>
+        <h3>Reset Student Password</h3>
+        <p>Enter your email or regimental number, verify your date of birth, then we will send an OTP to your registered email.</p>
+        <form id="forgotPasswordForm">
+          <input type="text" id="forgotLoginId" placeholder="Email or Regimental No" required />
+          <input type="date" id="forgotDob" required />
+          <div id="forgotOtpStatus" class="forgot-status" hidden></div>
+          <div class="forgot-grid">
+            <button type="button" id="sendOtpBtn">Send OTP</button>
+            <input type="text" id="forgotOtp" placeholder="Enter 6-digit OTP" inputmode="numeric" minlength="6" maxlength="6" required />
+          </div>
+          <div class="password-field">
+            <input type="password" id="forgotNewPassword" placeholder="New Password" required minlength="6" />
+            <button type="button" class="password-toggle" onclick="togglePassword('forgotNewPassword')">Show</button>
+          </div>
+          <div class="password-field">
+            <input type="password" id="forgotConfirmPassword" placeholder="Confirm New Password" required minlength="6" />
+            <button type="button" class="password-toggle" onclick="togglePassword('forgotConfirmPassword')">Show</button>
+          </div>
+          <div class="forgot-actions">
+            <button type="submit">Reset Password</button>
+            <button type="button" class="secondary-btn" id="forgotPasswordCancel">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="studentRegister" class="form-section">
+      <h2>Student Register</h2>
+      <form id="studentRegisterForm">
+        <input type="text" id="regimentalNo" placeholder="Regimental No" required />
+        <input type="text" id="name" placeholder="Full Name" required />
+        <input type="text" id="fatherName" placeholder="Father's Name" required />
+        <input type="date" id="dob" required />
+        <input type="email" id="email" placeholder="Email" required />
+        <div class="password-field">
+          <input type="password" id="studentRegisterPassword" placeholder="Password" required />
+          <button type="button" class="password-toggle" onclick="togglePassword('studentRegisterPassword')">Show</button>
+        </div>
+        <button type="submit">Register</button>
+      </form>
+    </div>
+
+    <div id="adminLogin" class="form-section">
+      <h2>Admin Login</h2>
+      <form id="adminLoginForm">
+        <input type="text" id="adminLoginId" placeholder="Admin Email or ID" required />
+        <div class="password-field">
+          <input type="password" id="adminLoginPassword" placeholder="Password" required />
+          <button type="button" class="password-toggle" onclick="togglePassword('adminLoginPassword')">Show</button>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+    </div>
+
+    <p class="message" id="messageBox"></p>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>

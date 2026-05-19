@@ -1,0 +1,994 @@
+/* =============================================================
+   style.css — NCC BKBiet Website
+   Sections:
+     1.  Base & Reset
+     2.  Theme Colors (utility classes)
+     3.  Section Titles
+     4.  Card (generic)
+     5.  Toggle Content
+     6.  Student Panel
+     7.  Admin Panel
+     8.  User Bar
+     9.  Dashboard Grid & Modern Cards
+    10.  Notes List
+    11.  Popup System
+    12.  Form Styles
+    13.  Content Manager (form grid, labels, upload, actions)
+    14.  Helper Text & Messages
+    15.  Assets Toolbar & Filters
+    16.  Content List
+    17.  Public Content Cards
+    18.  Utility
+    19.  Responsive
+   ============================================================= */
+
+
+/* =====================
+   1. BASE & RESET
+   ===================== */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9fafb;
+  overflow-x: hidden;
+}
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+.mobile-nav-menu {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid #f0f0f0;
+  background: #ffffff;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #e4e7ec;
+  margin: 15px 0;
+}
+
+
+/* =====================
+   2. THEME COLORS
+   ===================== */
+.ncc-red       { color: #E31D1C; }
+.bg-ncc-red    { background-color: #E31D1C; }
+.ncc-gold      { color: #FFD700; }
+.ncc-dark-blue { color: #003366; }
+
+
+/* =====================
+   3. SECTION TITLES
+   ===================== */
+.section-title {
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  width: 50%;
+  height: 3px;
+  bottom: -10px;
+  left: 0;
+}
+
+
+/* =====================
+   4. CARD (generic)
+   ===================== */
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+
+/* =====================
+   5. TOGGLE CONTENT
+   ===================== */
+.toggle-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+
+/* =====================
+   6. STUDENT PANEL
+   ===================== */
+.student-panel {
+  display: none;
+  padding: 24px;
+  margin-top: 20px;
+  background:
+    radial-gradient(circle at top right, rgba(255,255,255,0.9), transparent 28rem),
+    linear-gradient(135deg, #dff0ff, #f7fbff 48%, #eef7ff);
+  border-radius: 24px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+#welcomeUser {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0e0101;
+}
+
+.student-note-item {
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff, #f6fbff);
+  border: 1px solid #d9e6f3;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+.student-note-item strong {
+  display: block;
+  color: #152f4f;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.student-note-item p {
+  margin: 0 0 12px;
+  color: #60758f;
+  line-height: 1.5;
+}
+
+.student-note-item a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #1c67b7;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.student-note-item a:hover {
+  text-decoration: underline;
+}
+/* Notes Button */
+.notes-btn{
+  padding: 10px 18px;
+  border: none;
+  border-radius: 10px;
+  background: #3b82f6;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.notes-btn:hover{
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* Modal Background */
+.notes-modal{
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Modal Box */
+.notes-modal-content{
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  margin: 50px auto;
+  border-radius: 16px;
+  padding: 20px;
+  animation: modalFade 0.3s ease;
+}
+
+/* Header */
+.notes-modal-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* Close Button */
+.close-notes-modal{
+  font-size: 28px;
+  cursor: pointer;
+  color: #555;
+}
+
+/* Notes List */
+.notes-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Optional Note Item Styling */
+.notes-list li{
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Animation */
+@keyframes modalFade{
+  from{
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to{
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+/* =====================
+   7. ADMIN PANEL
+   ===================== */
+.admin-panel {
+  display: none;
+  padding: 30px;
+  margin-top: 20px;
+  background: linear-gradient(to right, #fff3e6, #fffaf5);
+  border-radius: 12px;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f4f6f9;
+}
+
+#adminWelcomeUser {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f0202;
+}
+
+/* Panel max-width constraint */
+.student-panel,
+.admin-panel {
+  width: min(100%, 1400px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =====================
+   8. USER BAR
+   ===================== */
+.user-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 12px 24px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  font-weight: 500;
+  font-size: 14px;
+  color: #555;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+
+/* =====================
+   9. DASHBOARD GRID & MODERN CARDS
+   ===================== */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.modern-card {
+  background-color: #ffffff;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.modern-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.modern-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.modern-card p {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.modern-card button {
+  padding: 9px 16px;
+  background-color: #1a56db;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.modern-card button:hover  { background-color: #1648c0; }
+.modern-card button:active { transform: scale(0.98); }
+
+.card-action-row {
+  display: flex;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.card-action-row button {
+  flex: 1 1 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+/* =====================
+   10. NOTES LIST
+   ===================== */
+.notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 14px;
+}
+
+.notes-list li {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+#adminNotesList {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* =====================
+   11. POPUP SYSTEM
+   ===================== */
+.popup {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.45);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.popup.hidden {
+  display: none;
+}
+
+.popup-content {
+  background-color: #ffffff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+
+.large-popup {
+  max-width: 720px;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #e4e7ec;
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 1;
+  border-radius: 14px 14px 0 0;
+}
+
+.popup-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.close-btn {
+  font-size: 22px;
+  color: #9ca3af;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 8px;
+  border-radius: 6px;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.close-btn:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Popup scrollbar */
+.popup-content::-webkit-scrollbar       { width: 6px; }
+.popup-content::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+.popup-content::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 10px; }
+.popup-content::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+@keyframes modalFade {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+
+
+/* =====================
+   12. FORM STYLES
+   ===================== */
+.form-style {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-style input[type="text"],
+.form-style input[type="number"],
+.form-style input[type="file"],
+.form-style select,
+.form-style textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  color: #1a1a2e;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+
+.form-style input[type="text"]:focus,
+.form-style input[type="number"]:focus,
+.form-style select:focus,
+.form-style textarea:focus {
+  border-color: #1a56db;
+  box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12);
+}
+
+.form-style textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.form-style input[type="file"] {
+  padding: 6px 10px;
+  background-color: #f9fafb;
+  cursor: pointer;
+}
+
+.form-style button {
+  width: 100%;
+  padding: 10px;
+  background: #1a56db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.form-style button:hover {
+  background: #1648c0;
+}
+
+
+/* =====================
+   13. CONTENT MANAGER
+   ===================== */
+.content-manager-card {
+  padding: 20px;
+  width: 100%;
+  flex: 1 1 920px;
+  min-width: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+  border: 1px solid #e4ecf5;
+  border-radius: 12px;
+}
+
+.content-manager-form {
+  display: grid;
+  gap: 10px;
+}
+
+.content-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.content-field-span-full {
+  grid-column: 1 / -1;
+}
+
+.content-field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6a7f99;
+  margin-bottom: 5px;
+}
+
+.content-upload-box {
+  padding: 14px;
+  border-radius: 16px;
+  background: #f7fbff;
+  border: 1px solid #dce8f6;
+  margin: 4px 0;
+}
+
+.inline-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.inline-form-actions button[type="submit"],
+.inline-form-actions #contentSubmitBtn {
+  padding: 9px 20px;
+  background-color: #1a56db;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.inline-form-actions button[type="submit"]:hover,
+.inline-form-actions #contentSubmitBtn:hover {
+  background-color: #1648c0;
+}
+
+.secondary-action {
+  padding: 9px 20px;
+  background-color: #e3e8ef;
+  color: #203751;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.secondary-action:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+
+/* =====================
+   14. HELPER TEXT & MESSAGES
+   ===================== */
+.admin-helper-text {
+  font-size: 12px;
+  color: #60758f;
+  line-height: 1.5;
+  background-color: #f0f9ff;
+  border-left: 3px solid #1a56db;
+  padding: 8px 12px;
+  border-radius: 0 6px 6px 0;
+  margin: 8px 0 14px;
+}
+
+.compact-helper {
+  margin: -2px 0 2px;
+  font-size: 13px;
+}
+
+#noteMessage,
+#contentMessage {
+  font-size: 13px;
+  color: #16a34a;
+  min-height: 18px;
+  margin-top: 4px;
+}
+
+#pendingStudentsList {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+
+/* =====================
+   15. ASSETS TOOLBAR & FILTERS
+   ===================== */
+.content-assets-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.content-assets-title h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 2px;
+}
+
+.content-assets-title p {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 6px 0 0;
+}
+
+.content-assets-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.content-assets-filters select,
+.content-assets-filters input[type="text"] {
+  padding: 7px 10px;
+  font-size: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #1a1a2e;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.content-assets-filters select:focus,
+.content-assets-filters input[type="text"]:focus {
+  border-color: #1a56db;
+}
+
+.content-assets-filters input[type="text"] {
+  min-width: 200px;
+}
+
+
+/* =====================
+   16. CONTENT LIST
+   ===================== */
+.admin-content-list {
+  display: grid;
+  gap: 12px;
+  font-size: 13px;
+  color: #6b7280;
+  min-height: 40px;
+}
+
+.content-loading-card,
+.public-dynamic-empty {
+  grid-column: 1 / -1;
+  padding: 22px;
+  border: 1px dashed #c8d6e6;
+  border-radius: 16px;
+  background: #f8fbff;
+  color: #617792;
+  text-align: center;
+}
+
+.content-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #e8f1ff;
+  color: #1d5daa;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.admin-content-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-content-actions button {
+  min-width: 92px;
+}
+
+.delete-action {
+  background: #d14343;
+}
+
+
+/* =====================
+   17. PUBLIC CONTENT CARDS
+   ===================== */
+.public-dynamic-card {
+  border-top: 4px solid #dc2626;
+}
+
+.public-dynamic-card img,
+.public-gallery-card img {
+  width: 100%;
+  object-fit: cover;
+}
+
+.public-dynamic-card img {
+  height: 240px;
+}
+
+.public-gallery-card {
+  background: #f5f7fa;
+  padding: 12px;
+  border-radius: 16px;
+  box-shadow: 0 10px 24px rgba(15, 48, 82, 0.08);
+}
+
+.public-gallery-card img {
+  height: 240px;
+  border-radius: 12px;
+  cursor: zoom-in;
+}
+
+.public-gallery-caption {
+  margin-top: 10px;
+  color: #46627f;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.public-content-facts div   { color: #5f738e; }
+.public-content-facts strong { color: #203751; }
+
+.public-content-highlight {
+  margin-top: 14px;
+  color: #1558a0;
+  font-weight: 800;
+}
+
+
+/* =====================
+   18. UTILITY
+   ===================== */
+.hidden {
+  display: none !important;
+}
+
+/* Overflow wrap for dynamic content */
+#notesList li,
+#adminNotesList div,
+#pendingStudentsList,
+.content-loading-card,
+.public-dynamic-empty {
+  overflow-wrap: anywhere;
+}
+
+
+/* =====================
+   19. RESPONSIVE
+   ===================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .student-panel,
+  .admin-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+}
+
+/* Small tablet / large mobile */
+@media (max-width: 768px) {
+  .user-bar {
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+
+  #welcomeUser,
+  #adminWelcomeUser {
+    font-size: 18px;
+  }
+
+  .card {
+    width: 100%;
+    padding: 18px;
+  }
+
+  .content-form-grid,
+  .content-assets-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .content-assets-toolbar {
+    align-items: stretch;
+  }
+
+  .admin-content-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .admin-content-actions button,
+  .inline-form-actions button {
+    width: 100%;
+  }
+
+  .card-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .card-action-row button {
+    width: 100%;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+}
+
+@media (max-width: 640px) {
+  nav .container {
+    gap: 12px;
+  }
+
+  nav .container > .flex.items-center.min-w-0 {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  nav .container > .flex.items-center.min-w-0 span {
+    display: block;
+  }
+
+  nav .container > .flex.items-center.min-w-0 span > span:first-child {
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  nav .container > .flex.items-center.min-w-0 span > span:last-child {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+
+  #menuBtn {
+    flex: 0 0 auto;
+    padding: 8px;
+  }
+
+  #mobileMenu {
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  .student-panel,
+  .admin-panel {
+    padding: 12px;
+    margin-top: 16px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .compact-helper,
+  .admin-helper-text {
+    font-size: 13px;
+  }
+
+  .content-upload-box,
+  .student-note-item {
+    border-radius: 14px;
+  }
+
+  .public-dynamic-card img,
+  .public-gallery-card img {
+    height: 220px;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+  }
+
+  .content-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .content-assets-toolbar {
+    flex-direction: column;
+  }
+
+  .content-assets-filters {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .content-assets-filters input[type="text"] {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .large-popup {
+    max-width: 100%;
+  }
+
+  .inline-form-actions {
+    flex-direction: column;
+  }
+
+  .inline-form-actions button {
+    width: 100%;
+  }
+}

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About NCC | National Cadet Corps</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+ 
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 py-3 flex justify-between items-center gap-4">
+        <!-- Logo & Title -->
+        <div class="flex items-center min-w-0">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 mr-3 sm:mr-4 flex items-center justify-center shrink-0">
+                <img src="./assets\ncclogo.webp" alt="NCC Logo">
+            </div>
+            <span class="text-base sm:text-xl font-bold text-red-600 min-w-0">
+                <span class="block font-serif tracking-wide sm:tracking-wider leading-tight">National Cadet Corps</span>
+                <span class="block text-[10px] sm:text-xs font-normal text-gray-600 mt-1 leading-tight">Ministry of Defence, Govt of India</span>
+            </span>
+        </div>
+        <!-- Desktop Menu -->
+        <div class="desktop-nav">
+            <a href="#introhome" class="text-gray-600 hover:text-red-600">Home</a>
+            <a href="#aimabout" class="text-gray-600 hover:text-red-600">About</a>
+            <a href="#achievements" class="text-gray-600 hover:text-red-600">Achievements</a>
+            <a href="#gallery" class="text-gray-600 hover:text-red-600">Gallery</a>
+            <a href="#camps" class="text-gray-600 hover:text-red-600">Camps</a>
+            <a href="#contact" class="text-gray-600 hover:text-red-600">Contact</a>
+            <a href="login.html" id="loginNavBtnDesktop" class="text-gray-600 hover:text-red-600">Login</a>
+            <button id="logoutNavBtnDesktop" class="text-gray-600 hover:text-red-600 hidden">Logout</button>
+        </div>
+        <!-- Hamburger Button -->
+        <button id="menuBtn" class="mobile-menu-btn focus:outline-none" type="button" aria-label="Open menu">
+            <i class="fas fa-bars text-xl text-gray-600"></i>
+        </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-nav-menu hidden">
+        <a href="#introhome" class="block py-2 text-gray-600 hover:text-red-600">Home</a>
+        <a href="#aimabout" class="block py-2 text-gray-600 hover:text-red-600">About</a>
+        <a href="#achievements" class="block py-2 text-gray-600 hover:text-red-600">Achievements</a>
+        <a href="#gallery" class="block py-2 text-gray-600 hover:text-red-600">Gallery</a>
+        <a href="#camps" class="block py-2 text-gray-600 hover:text-red-600">Camps</a>
+        <a href="#contact" class="block py-2 text-gray-600 hover:text-red-600">Contact</a>
+        <a href="login.html" id="loginNavBtnMobile" class="block py-2 text-gray-600 hover:text-red-600">Login</a>
+        <button id="logoutNavBtnMobile" class="block py-2 text-gray-600 hover:text-red-600 hidden">Logout</button>
+    </div>
+</nav>
+    <!-- Hero Section -->
+<div class="relative overflow-hidden py-6 sm:py-8 md:py-10">
+    <div class="flex items-center justify-center">
+        <div class="container mx-auto px-4 sm:px-6 text-center text-white">
+            
+            <!-- Logo and Title Row -->
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-3 md:space-y-0 md:space-x-6 parade-animation">
+                <img src="./assets\newncclogo1.png" alt="NCC Logo" class="w-20 sm:w-24 md:w-32">
+                
+                <h2 class="text-base sm:text-lg md:text-2xl lg:text-3xl font-bold text-black text-center px-2 max-w-3xl">
+                    B.K. Birla Institute of Engineering and Technology, Pilani
+                </h2>
+                
+                <img src="./assets\bkbietlogo-removebg-preview.png"
+                 alt="BKBiet Logo" class="w-20 sm:w-24 md:w-32">
+            </div>
+
+            <!-- Main Heading -->
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-bold mt-4 sm:mt-6 text-black">
+                National Cadet Corps
+            </h1>
+
+            <!-- Subheading -->
+            <div class="flex items-center justify-center mt-3 sm:mt-4">
+                <div class="w-8 sm:w-12 md:w-16 h-px bg-yellow-400 mx-2"></div>
+                <p class="text-base sm:text-xl md:text-2xl font-serif italic text-black">
+                    Unity & Discipline
+                </p>
+                <div class="w-8 sm:w-12 md:w-16 h-px bg-yellow-400 mx-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Control Bar -->
+<!-- Student Panel -->
+<section id="studentPanel" class="student-panel">
+ <!-- User Control Bar -->
+  <div id="userBar" class="user-bar">
+    <span id="welcomeUser"></span>
+  </div>
+   <!-- Notes Button Section -->
+<section class="notes-section" style="margin-top: 20px;">
+  <div class="card" style="border-top: 4px solid #3b82f6; text-align:center;">
+
+    <h3>Notes</h3>
+
+    <!-- Button -->
+    <button id="openNotesModal" class="notes-btn">
+      View Notes
+    </button>
+
+  </div>
+</section>
+
+<!-- Notes Modal -->
+<div id="notesModal" class="notes-modal">
+  <div class="notes-modal-content">
+    <!-- Header -->
+    <div class="notes-modal-header">
+      <h2>All Notes</h2>
+      <span id="closeNotesModal" class="close-notes-modal">
+        &times;
+      </span>
+    </div>
+    <!-- Notes List -->
+    <ul id="notesList" class="notes-list"></ul>
+  </div>
+</div>
+</section>
+<!-- Admin Panel -->
+<section id="adminPanel" class="admin-panel">
+  <div id="adminUserBar" class="user-bar">
+    <span id="adminWelcomeUser"></span>
+  </div>
+
+  <div class="dashboard-grid">
+
+    <!-- Notes Card -->
+    <div class="modern-card">
+      <div>
+        <h3>Manage Notes</h3>
+        <p>Upload and manage NCC notes and study material.</p>
+      </div>
+      <button onclick="document.getElementById('notesPopup').classList.remove('hidden')">
+        Open Notes
+      </button>
+    </div>
+
+    <!-- ERP Card -->
+    <div class="modern-card">
+      <div>
+        <h3>ERP Management</h3>
+        <p>Manage students and ERP records.</p>
+      </div>
+      <button onclick="window.location.href='./admin/erp2.html'">
+        Manage Students
+      </button>
+    </div>
+
+    <!-- Content Card -->
+    <div class="modern-card">
+      <div>
+        <h3> Homepage Content</h3>
+        <p>Manage achievements, camps, and gallery content.</p>
+      </div>
+      <div class="card-action-row">
+        <button onclick="document.getElementById('contentPopup').classList.remove('hidden')">
+          Add Content
+        </button>
+        <button onclick="document.getElementById('assetsPopup').classList.remove('hidden')">
+          Manage Assets
+        </button>
+      </div>
+    </div>
+
+    <!-- Approvals Card -->
+    <div class="modern-card">
+      <div>
+        <h3> Pending Approvals</h3>
+        <p>Approve or reject student registrations.</p>
+      </div>
+      <div id="pendingStudentsList">
+        <p>No pending requests</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NOTES POPUP -->
+  <div id="notesPopup" class="popup hidden">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h2>Manage Notes</h2>
+        <span class="close-btn" onclick="document.getElementById('notesPopup').classList.add('hidden')">&times;</span>
+      </div>
+
+      <div class="card">
+        <form id="addNoteForm" class="form-style" enctype="multipart/form-data">
+          <input type="text" id="noteTitle" placeholder="Note Title" required />
+          <input type="text" id="noteDescription" placeholder="Description" />
+          <input type="file" id="noteFile" required />
+          <button type="submit">Add Note</button>
+        </form>
+        <p id="noteMessage"></p>
+        <hr style="margin:15px 0;">
+        <div id="adminNotesList">
+          <p>Loading notes...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD CONTENT POPUP -->
+  <div id="contentPopup" class="popup hidden">
+    <div class="popup-content large-popup">
+      <div class="popup-header">
+        <h2>Add Content</h2>
+        <span class="close-btn" onclick="document.getElementById('contentPopup').classList.add('hidden')">&times;</span>
+      </div>
+
+      <div class="card content-manager-card">
+        <form id="contentItemForm" class="form-style content-manager-form" enctype="multipart/form-data">
+          <input type="hidden" id="contentItemId" />
+          <div class="content-form-grid">
+            <div class="content-field-span-full">
+              <label for="contentSection" class="content-field-label">Section</label>
+              <select id="contentSection" required>
+                <option value="achievements">NCC Cadet Achievements</option>
+                <option value="national-camps">BKBIET Cadets at National Camps</option>
+                <option value="gallery" selected>Students Gallery</option>
+              </select>
+            </div>
+            <div>
+              <label for="contentTitle" class="content-field-label">Title</label>
+              <input type="text" id="contentTitle" placeholder="Student Name" />
+            </div>
+            <div>
+              <label for="contentSubtitle" class="content-field-label">Subtitle</label>
+              <input type="text" id="contentSubtitle" placeholder="Subtitle / Regimental No" />
+            </div>
+                        <div id="contentFactsGroup" class="content-field-span-full">
+              <label for="contentFacts" class="content-field-label">Facts</label>
+              <textarea id="contentFacts" rows="4" placeholder="Facts, one per line.
+                Example:&#10;DOB: 19.03.2003&#10;Camp: TSC 2023"></textarea>
+            </div>
+                        <div id="contentHighlightGroup">
+              <label for="contentHighlight" class="content-field-label">Highlight</label>
+              <input type="text" id="contentHighlight" placeholder="Highlight text / achievement line" />
+            </div>
+            <div>
+              <label for="contentAltText" class="content-field-label">Image Alt Text</label>
+              <input type="text" id="contentAltText" placeholder="Image alt text" />
+            </div>
+            <div>
+              <label for="contentSortOrder" class="content-field-label">Sort Order</label>
+              <input type="number" id="contentSortOrder" placeholder="Sort order" value="0" />
+            </div>
+          </div>
+          <input type="hidden" id="contentImageUrl" />
+          <div class="content-upload-box">
+            <input type="file" id="contentImageFile" accept="image/*" />
+          </div>
+          <div class="inline-form-actions">
+            <button type="submit" id="contentSubmitBtn">Add Content</button>
+            <button type="button" id="contentCancelEditBtn" class="secondary-action hidden">Cancel Edit</button>
+          </div>
+        </form>
+        <p id="contentMessage"></p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MANAGE ASSETS POPUP -->
+  <div id="assetsPopup" class="popup hidden">
+    <div class="popup-content large-popup">
+      <div class="popup-header">
+        <h2>Manage Assets</h2>
+        <span class="close-btn" onclick="document.getElementById('assetsPopup').classList.add('hidden')">&times;</span>
+      </div>
+
+      <div class="card content-manager-card">
+
+        <div class="content-assets-toolbar">
+          <div class="content-assets-title">
+            <h4>Managed Assets</h4>
+            <p>Filter and search assets instead of scrolling the full list.</p>
+          </div>
+          <div class="content-assets-filters">
+            <select id="adminContentSectionFilter">
+              <option value="all">All Sections</option>
+              <option value="achievements">Achievements</option>
+              <option value="national-camps">National Camps</option>
+              <option value="gallery">Gallery</option>
+            </select>
+            <input type="text" id="adminContentSearchInput" placeholder="Search title, subtitle, facts..." />
+          </div>
+        </div>
+
+        <hr style="margin:15px 0;">
+
+        <div id="adminContentList" class="admin-content-list">
+          <p>Loading homepage content...</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</section>
+<!-- Main Content -->
+    <div class="container mx-auto px-4 sm:px-6 py-10 sm:py-12">
+        <!-- Introduction Section -->
+        <section class="mb-10">
+            <div id="introhome" class="text-center mb-8" style="scroll-margin-top:8rem;">
+                <div class="flex justify-center items-center mb-4">
+                    <div class="w-8 h-px bg-red-600 mr-4"></div>
+                    <h2 class="text-3xl font-bold text-gray-800 section-title">Introduction to NCC</h2>
+                    <div class="w-8 h-px bg-red-600 ml-4"></div>
+                </div>
+                <span class="text-sm uppercase tracking-wider text-gray-500">India's Premier Youth Organization</span>
+            </div>
+            <div class="grid md:grid-cols-2 gap-10 items-center">
+                <div>
+                    <p class="text-gray-600 mb-6">The National Cadet Corps (NCC) is the largest youth 
+                        organization in the world.
+                         It was established under the National Cadet Corps Act 31 of 1948
+                          on 15 July 1948 under the Ministry of Defence.</p>
+                    <p class="text-gray-600 mb-6">The NCC provides exposure to cadets in a
+                         wide range of activities, with a distinct emphasis on social
+                          services, discipline and adventure training. The NCC cadets
+                           undergo this training while they study in schools and colleges
+                            as volunteers.</p>
+                    <p class="text-gray-600">Today, NCC has approximately 16.5 lakh cadets under its fold 
+                        from schools and colleges spread all over the country, making it
+                         the largest uniformed youth organization in the world.</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                    <img src="./assets\mainimg1.jpg" alt="Group photo of diverse NCC cadets from different regions of India standing together"
+                     class="w-full h-full object-cover">
+                </div>
+            </div>
+        </section>
+
+
+<!-- NCC Information Section (responsive: 1 column on small, 2 columns on md+) -->
+<section class="mb-20" id="ncc-info">
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">NCC Information</h2>
+
+  <!-- Grid: 1 column on mobile, 2 columns on md and above -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+    <!-- Training Period Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
+        <h3 class="text-2xl font-bold text-red-600 mb-4">Training Period</h3>
+        <p class="text-gray-700 mb-4">
+            Total training period for SD and SW is 3 years with an extension of 1 year permissible on exceptional condition.
+            Every cadet has to undergo service training for at least 2 hours per week during the training year.
+        </p>
+        <ul class="list-disc pl-6 text-gray-700 space-y-2">
+            <li>Minimum 75% attendance in total training hours is required annually.</li>
+            <li>Cadets in their second year must attend an Annual Training Camp (ATC) of 10–12 days to be eligible for certificate exams.</li>
+        </ul>
+    </div>
+
+    <!-- Certificates & Examination Card -->
+    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
+        <h3 class="text-2xl font-bold text-red-600 mb-4">Certificates & Examination</h3>
+        <ul class="space-y-3 text-gray-700">
+            <li><strong>Certificate A</strong> – For JD/JW cadets of class 8 & 9 only.</li>
+            <li><strong>Certificate B</strong> – For SD/SW cadets after class 10, eligible in 2nd year of training.</li>
+            <li><strong>Certificate C</strong> – Highest level, for SD/SW cadets in 3rd year or those with Certificate B.</li>
+        </ul>
+        <p class="mt-4 text-gray-700">Grading: A, B, or C.</p>
+        <p class="mt-2 text-gray-700 font-semibold">Time of Selection: SEP/OCT every year.</p>
+    </div>
+
+    <!-- Enrolment Card -->
+    <div class="bg-white rounded-lg shadow-md p-6   border-t-4 border-red-600">
+        <h3 class="text-2xl font-bold text-red-600 mb-4">Enrolment of Students as NCC Cadets</h3>
+
+        <h4 class="font-semibold text-gray-800 mb-2">Eligibility Conditions</h4>
+        <ul class="list-disc pl-6 text-gray-700 space-y-1">
+            <li>Citizen of India with good moral character.</li>
+            <li>Enrolled in an educational institution.</li>
+            <li>Meets prescribed medical standards.</li>
+            <li>Age: 15 to 23 years (SD/SW).</li>
+            <li>Enrolment Period: 3 years (SD/SW).</li>
+        </ul>
+
+        <h4 class="font-semibold text-gray-800 mt-4 mb-2 ">Selection Procedure</h4>
+        <ol class="list-decimal pl-6 text-gray-700 space-y-1">
+            <li>Physical Examination: Run (2.5km), chin-up, sit-up, etc.</li>
+            <li>Written Test & Interview.</li>
+            <li>Application for Enrolment.</li>
+            <li>Apply to ANO/Officer Commanding nearest NCC Unit.</li>
+            <li>Medical Examination.</li>
+        </ol>
+    </div>
+
+    <!-- Documentation Card -->
+    <div class="bg-white rounded-lg shadow-md p-6  border-t-4 border-red-600">
+        <h3 class="text-2xl font-bold text-red-600 mb-4">Documentation</h3>
+        <ul class="list-disc pl-6 text-gray-700 space-y-1">
+            <li>10th & 12th Class Mark Sheet.</li>
+            <li>Blood Group Certificate.</li>
+            <li>Aadhar Card Photocopy.</li>
+            <li>Cadet/Guardian’s Bank Account Details (Photocopy).</li>
+            <li>College Admission Fee Receipt.</li>
+            <li>04 Passport Size Photos (Civil Uniform).</li>
+        </ul>
+    </div>
+
+  </div>
+</section>
+
+
+
+        <!-- History Section -->
+        <section id="aimabout" class="mb-10" style="scroll-margin-top:8rem;">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">History of NCC</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- History Card 1 -->
+                <div class="bg-white p-6 rounded-lg shadow-md history-card transition duration-300 border-t-4 border-red-600">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-clock text-red-600 text-xl"></i>
+                        </div>
+                    <h3 class="text-xl font-bold text-gray-800">Pre-Independence</h3>
+                </div>
+                    <p class="text-gray-600">The NCC in India was formed with the National Cadet Corps Act of 1948. However,
+                         its origin can be traced back to the 'University Corps' which was created under
+                          the Indian Defence Act 1917.</p>
+                </div>
+                
+                <!-- History Card 2 -->
+                <div class="bg-white p-6 rounded-lg shadow-md history-card transition duration-300 border-t-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-flag text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Formation in 1948</h3>
+                    </div>
+                    
+                    <p class="text-gray-600">The NCC was formally inaugurated on 15 July 1948 
+                        following the passage of the NCC Act.
+                         It was established to replace the University Officers
+                          Training Corps.</p>
+                </div>
+                
+                <!-- History Card 3 -->
+                <div class="bg-white p-6 rounded-lg shadow-md history-card transition duration-300 border-t-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mr-4">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Growth & Expansion</h3>
+                    </div>
+                    <p class="text-gray-600">From modest beginning of 20,000 cadets in 
+                        1948, NCC has grown into a 1.6 million strong organization.
+                         Girls Division was introduced in 1949 and Naval and 
+                         Air Wing in 1950 and 1952 respectively.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Aims & Objectives Section -->
+        <section class="mb-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">Aims & Objectives</h2>
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="md:grid md:grid-cols-2">
+                    <div class="p-8 shadow-md border-t-4 border-red-600">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">The 'Aim' of the NCC is:</h3>
+                        <p class="text-gray-600 mb-6">"To develop qualities of character, courage, comradeship, discipline, 
+                            leadership, secular outlook, spirit of adventure and sportsmanship
+                             and the ideals of selfless service among the youth to make them 
+                             useful citizens."</p>
+                        
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">Primary Objectives:</h3>
+                        <ul class="space-y-3 text-gray-600">
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2"><i class="fas fa-check-circle"></i></span>
+                                <span>To create human resource of organized, trained and motivated youth</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2"><i class="fas fa-check-circle"></i></span>
+                                <span>To provide leadership in all walks of life and be always in the forefront</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2"><i class="fas fa-check-circle"></i></span>
+                                <span>To develop character, courage, comradeship and discipline</span>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-red-600 mr-2"><i class="fas fa-check-circle"></i></span>
+                                <span>To create suitable environment to motivate the youth to take up a career in armed forces</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="p-8 flex items-center justify-center">
+                        <img src="./assets\aim.jpg" alt=" pic ">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+<!-- benifites -->
+<section class="mb-10">
+
+<h2 class="text-3xl font-bold text-gray-800 mb-10 section-title">NCC Benefits</h2>
+<div class="grid md:grid-cols-3 gap-8">
+
+    <!-- Value 1 -->
+    <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <i class="fas fa-medal text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Defence Career Boost</h3>
+        </div>
+
+        <ul class="space-y-4 pl-1">
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>
+                    <strong>CDSE (Men):</strong> Separate merit list for NCC "C" Certificate holders.
+                    <p class="text-gray-600 mt-1">IMA: 3–15 vacancies reserved (Army Wing)</p>
+                    <p class="text-gray-600">INA: 5–8 vacancies reserved (Naval Wing)</p>
+                </span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>
+                    <strong>Special Entry (Men & Women):</strong>
+                    <p class="text-gray-600 mt-1">OTA Chennai: 50 vacancies for NCC Special Entry (Non-Tech)</p>
+                    <p class="text-gray-600">AFA Hyderabad: 10% seats reserved for Air Wing holders</p>
+                </span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>
+                    <strong>Recruitment as Jawan:</strong>
+                    <p class="text-gray-600 mt-1">Bonus marks for "A" (5 marks), 
+                        "B" (10 marks), and "C" Certificate holders.</p>
+                    <p class="text-gray-600">C Certificate + RDC participation: Exemption
+                         from CEE for certain categories.</p>
+                </span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Value 2 -->
+    <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <i class="fas fa-medal text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Non-Tangible Benefits</h3>
+        </div>
+
+        <ul class="space-y-4 pl-1">
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Annual Training Camps – Build friendships with cadets from different institutions.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Republic Day Camp – Opportunity to march at Kartavya Path in New Delhi.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Para Training Camp – Experience para-jumping with Indian commandos at PTS Agra.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>National Integration Camp – Cultural exchange with cadets from across India.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Adventure Courses – Mountaineering, skiing, sailing, scuba diving, trekking.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>International Outreach – Youth Exchange Programmes & foreign naval cruises.</span>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Value 3 -->
+    <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+        <div class="flex items-center mb-4">
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <i class="fas fa-medal text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Other Benefits of "C" Certificate</h3>
+        </div>
+
+        <ul class="space-y-4 pl-1">
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Bonus marks for recruitment in Armed Forces (ORs, Sailors, Airmen) – 5% to 10%.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Extra marks for Para-Military Forces (CRPF, BSF, ITBP) recruitment.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Preference in certain State Government services and police recruitment.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Eligibility for NCC roles – Civilian Gliding Instructor, Girl Cadet Instructor, Lady Officer.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Industry preference in security-related jobs and corporate defence training.</span>
+            </li>
+            <li class="flex items-start">
+                <span class="text-red-600 mr-3 mt-1"><i class="fas fa-check-circle"></i></span>
+                <span>Cash awards for excellence in NCC sports and shooting competitions.</span>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+
+ <!-- our cour value section -->
+  
+        <section  class="mb-10 mt-10">
+            <h2 class="text-3xl font-bold text-gray-800 mb-10 section-title">Our Core Values</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Value 1 -->
+                <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-users text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Unity</h3>
+                    </div>
+                    <p class="text-gray-600">NCC fosters national integration by admitting cadets 
+                        from every part of India regardless of caste, creed, religion or region. 
+                        The organization transcends all boundaries and unites India's youth.</p>
+                </div>
+                
+                <!-- Value 2 -->
+                <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-medal text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Discipline</h3>
+                    </div>
+                    <p class="text-gray-600">Military-like discipline is the cornerstone of NCC training.
+                         Cadets learn punctuality, obedience, proper conduct and the importance of
+                          following rules through regimented training.</p>
+                </div>
+                
+                <!-- Value 3 -->
+                <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                            <i class="fas fa-flag text-red-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">Patriotism</h3>
+                    </div>
+                    <p class="text-gray-600">NCC inculcates love for the nation and respect for constitutional values.
+                         Flag hoisting, national anthem, and awareness about India's heritage are integral to NCC activities.</p>
+                </div>
+            </div>
+        </section>
+
+<!-- Organization Structure Section -->
+<section class="mb-10">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">Organization Structure</h2>
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+        <div class="md:grid md:grid-cols-2">
+            <div class="border-t-4 border-red-600 pl-4 p-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Hierarchy Overview</h3>
+                <p class="text-gray-600 mb-6">
+                    The NCC is headed by a <strong>Director General</strong> with the rank of Lieutenant-General. 
+                    He is assisted by two Additional Director Generals (A and B) of two-star rank (Major-General,
+                     Rear-Admiral or Air Vice-Marshal). 
+                    Five Brigadier level officers and other civil officials also assist him.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    The Headquarters is located in New Delhi. There are 17 Directorates located in the state capitals,
+                     each headed by a Major General from one of the three services. 
+                    Depending on the state’s size and growth of NCC, each Directorate may have up to 99 Group Headquarters.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    Each Group Headquarters is commanded by a Brigadier or equivalent known as the Group Commander and controls 
+                    5–7 units (Battalions) commanded by a Colonel/Lt. Colonel or equivalent. 
+                    Each Battalion consists of Companies commanded by an Associate NCC Officer (ANO) of the rank of Lieutenant to Major.
+                </p>
+                <p class="text-gray-600 mb-6">
+                    In total, there are 95 Group Headquarters across the country controlling a network of:
+                    <ul class="list-disc pl-6">
+                        <li>700 Army Wing Units (including technical and girls’ units)</li>
+                        <li>73 Naval Wing Units</li>
+                        <li>64 Air Squadrons</li>
+                    </ul>
+                </p>
+                <p class="text-gray-600">
+                    There are two main training establishments:
+                    <ul class="list-disc pl-6">
+                        <li>Officers Training School, Kamptee (Nagpur, Maharashtra)</li>
+                        <li>Women Officers Training School, Gwalior</li>
+                    </ul>
+                </p>
+            </div>
+            <div class="p-8 flex items-center justify-center">
+                <img src="./assets\orginazationStructure.webp" alt="NCC Structure">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+        <!-- Wings & Divisions Section -->
+        <section class="mb-10" >
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">Wings & Divisions</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Army Wing -->
+                <div id="divisions" class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="bg-gray-200 flex items-center justify-center">
+                       <img style="width:14vw;" src="./assets/Indian_Army.jpg" alt=" Indian Army">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Army Wing</h3>
+                        <p class="text-gray-600 mb-4">The largest wing with focus on infantry training, weapons handling, map reading and military tactics.</p>
+                        <button onclick="toggleContent('army-content')" class="text-red-600 font-semibold flex items-center">
+                            Read More <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                        </button>
+                        <div id="army-content" class="toggle-content">
+                            <p class="text-gray-600 mt-3">Includes: Drill training, field craft, obstacle training, weapon training (.22 rifle),
+                                 adventure activities and attachment with army units.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Naval Wing -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class=" bg-blue-600 flex items-center justify-center">
+                       <img style="width:7.5vw;" src="./assets/Indian_Navy.jpg" alt="Indian Naval Wing">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Naval Wing</h3>
+                        <p class="text-gray-600 mb-4">Specialized in naval orientation including seamanship, navigation and exposure to naval life.</p>
+                        <button onclick="toggleContent('naval-content')" class="text-red-600 font-semibold flex items-center">
+                            Read More <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                        </button>
+                        <div id="naval-content" class="toggle-content">
+                            <p class="text-gray-600 mt-3">Includes: Ship visits, sailing, boat pulling, semaphore signaling, 
+                                sea camps and attachment with naval establishments.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Air Wing -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class=" bg-blue-400 flex items-center justify-center">
+                         <img style="width:13vw;" src="./assets/Indian_Air_Force.png" alt="Indian Air Force">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Air Wing</h3>
+                        <p class="text-gray-600 mb-4">Provides basic understanding of aviation and motivates cadets towards careers in IAF and civil aviation.</p>
+                        <button onclick="toggleContent('air-content')" class="text-red-600 font-semibold flex items-center">
+                            Read More <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                        </button>
+                        <div id="air-content" class="toggle-content">
+                            <p class="text-gray-600 mt-3">Includes: Aeromodelling, aero engines, airframe systems, gliding, micro-light flying and 
+                                attachment with air force stations.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+
+<!-- Leadership & Mentorship at BKBIET section -->
+<section  class="mb-20" id="leadership">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">Leadership & Mentorship at BKBIET</h2>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
+        <!-- Card 1 -->
+        <div class="bg-white flex flex-col sm:flex-row items-center p-6 rounded-lg border-t-4 border-red-600 shadow-md transition duration-300">
+            <img src="./assets/DirectorSirU-1536x1417.jpeg" alt="Dr. B K Rawat" class="w-full sm:w-40 h-auto sm:h-40 object-cover rounded mb-4 sm:mb-0 sm:mr-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800">Prof. B K Rawat</h3>
+                <p class="text-gray-600 mt-2">Prof. B K Rawat is the Director of B.K. Birla Institute of Engineering and Technology, Pilani.</p>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white flex flex-col sm:flex-row items-center p-6 rounded-lg shadow-md transition duration-300 border-t-4 border-red-600">
+            <img src="./assets/principle-sir.jpeg" alt="Dr. Anil Kumar Sharma" class="w-full sm:w-40 h-auto sm:h-40 object-cover rounded mb-4 sm:mb-0 sm:mr-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800">Dr. Anil Kumar Sharma</h3>
+                <p class="text-gray-600 mt-2">Dr. Anil Kumar Sharma is the Principal of B.K. Birla Institute of Engineering and Technology, Pilani.</p>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white flex flex-col sm:flex-row items-center p-6 rounded-lg shadow-md transition duration-30 border-t-4 border-red-600">
+            <img src="./assets/anil-sir.jpeg" alt="Lieutenant Anil Kumar" class="w-full sm:w-40 h-auto sm:h-40 object-cover rounded mb-4 sm:mb-0 sm:mr-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800">Lieutenant Anil Kumar</h3>
+                <p class="text-gray-600 mt-2">Lieutenant Anil Kumar is the Associate NCC Officer of B.K. Birla Institute of Engineering and Technology, Pilani.</p>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white flex flex-col sm:flex-row items-center p-6 rounded-lg shadow-md transition duration-300    border-t-4 border-red-600">
+            <img src="./assets/tejpal-sir.jpeg" alt="Drill Instructor Mr. Tejpal Saini" class="w-full sm:w-40 h-auto sm:h-40 object-cover rounded mb-4 sm:mb-0 sm:mr-6">
+            <div>
+                <h3 class="text-xl font-bold text-gray-800">Drill Instructor Mr. Tejpal Saini</h3>
+                <p class="text-gray-600 mt-2">Mr. Tejpal Saini is the Drill Instructor of B.K. Birla Institute of Engineering and Technology, Pilani.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- NCC Achievements Section -->
+<section id="achievements" class="mb-10 mt-20" style="scroll-margin-top:8rem;">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">
+        NCC Cadet Achievements - BKBIET
+    </h2>
+
+    <div id="achievementsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 dynamic-content-grid">
+        <div class="content-loading-card">Loading achievements...</div>
+    </div>
+</section>
+
+<!-- Our national camp achievements -->
+<section id="nationalCampsSection" class="mb-20">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">
+        BKBIET Cadets at National Camps
+    </h2>
+
+    <div id="nationalCampsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 dynamic-content-grid">
+        <div class="content-loading-card">Loading national camp highlights...</div>
+    </div>
+</section>
+
+<!-- Gallery of Students Section -->
+<section id="gallery" class="mb-20" style="scroll-margin-top:8rem;">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">Our Students Gallery</h2>
+
+    <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 dynamic-gallery-grid">
+        <div class="content-loading-card">Loading gallery...</div>
+    </div>
+</section>
+
+        <!-- NCC Camps Section -->
+        <section  id="camps" class="mb-20" style="scroll-margin-top:8rem;">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">NCC Camps</h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Camp 1 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-39 bg-red-600 flex items-center justify-center text-white">
+                        <img src="./assets/rdc_camp.jpg" alt="Republic Day Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Republic Day Camp (RDC)</h3>
+                        <p class="text-gray-600">The Republic Day Camp is the flagship event of the National Cadet Corps, 
+                            held every year in New Delhi from 1st to 29th January. 
+                            It is the most prestigious NCC camp, bringing together the best
+                             cadets from all States and Union Territories for a month of training,
+                              competition, and national pride.</p>
+                    </div>
+                </div>
+                
+                <!-- Camp 2 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-39 bg-blue-600 flex items-center justify-center text-white">
+                        <img src="./assets/Thal_Sainik.webp" alt="Thal Sainik Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Thal Sainik Camp (TSC)</h3>
+                        <p class="text-gray-600">The Thal Sainik Camp is one of the most challenging and 
+                            prestigious annual training events of the Army Wing of the National Cadet Corps.
+                             It is held every year at the Karian Camp, Delhi Cantt, 
+                             and brings together the best Army Wing cadets from across the 
+                             country.</p>
+                    </div>
+                </div>
+                
+                <!-- Camp 3 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-39 bg-blue-400 flex items-center justify-center text-white">
+                        <img src="./assets/National-Integration-camp.webp" alt=" National Integration Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">National Integration Camp (NIC)</h3>
+                        <p class="text-gray-600">Promotes national integration through cultural exchange 
+                            programs and adventure activities with cadets from across India.</p>
+                    </div>
+                </div>
+
+                <!-- Camp 4 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-39 bg-red-600 flex items-center justify-center text-white">
+                        <img src="./assets/armyattachmentcamp.webp" alt=" Army Attachment Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Army Attachment Camp</h3>
+                        <p class="text-gray-600">Provides hands-on experience of army life through attachments
+                             with various regiments and field training.</p>
+                    </div>
+                </div>
+
+                <!-- Camp 5 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-42 bg-blue-600 flex items-center justify-center text-white">
+                       <img src=".\assets\SeaSortieCamp.jpg" alt="Sea Sortie Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Sea Sortie Camp</h3>
+                        <p class="text-gray-600">The Sea Sortie Camp is a specialized training programme conducted by the Naval 
+                            Wing of the National Cadet Corps (NCC), designed to give cadets
+                             first-hand experience of life at sea. It aims to build confidence,
+                              maritime skills, and leadership qualities through practical
+                               exposure aboard naval vessels.</p>
+                    </div>
+                </div>
+
+                <!-- Camp 6 -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
+                    <div class="h-43 bg-blue-400 flex items-center justify-center text-white">
+                        <img src=".\assets\VayuSainikCamp(VSC).webp" alt="Vayu Sainik Camp">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 mb-3">Vayu Sainik Camp (VSC)</h3>
+                        <p class="text-gray-600">The Vayu Sainik Camp is the premier annual
+                             training event for the Air Wing of the National Cadet Corps, 
+                             designed to give cadets an in-depth understanding of aviation,
+                              air force operations, and the spirit of aerial adventure.</p>
+                    </div>
+                </div>
+            </div>
+
+
+<!-- Additional NCC Camps List -->
+<div class="mt-12 bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
+    <h3 class="text-2xl font-bold text-gray-800 mb-4">Other NCC Camps</h3>
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Prime Minister’s Rally
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Combined Annual Training
+             Camps (CATC)
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Advance Leadership Course
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Hiking and Trekking Camps
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Nau Sainik Camp (NSC)
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> All India Yachting Regatta (AIYR)
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Rock Climbing Camps (RCC)
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Youth Exchange Programme (YEP)
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Adventure Based Learning
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Mountaineering Expeditions
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> All India Trekking Expedition
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Camel Safari
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Parasailing
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Para Basic Course
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Cycle and Motor Cycle Rallies
+        </li>
+        <li class="flex items-center">
+            <i class="fas fa-check-circle text-red-600 mr-2"></i> Sailing Expedition
+        </li>
+    </ul>
+</div>
+
+<!-- Font Awesome CDN (Head section me add karo) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+
+        </section>
+        <!-- NCC Flag & Song Section -->
+        <section class="mb-20">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">NCC Flag & Song</h2>
+            <div class="grid md:grid-cols-2 gap-10">
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-t-4 border-red-600">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">The NCC Flag</h3>
+                        <div class="flex flex-col md:flex-row items-center mb-4">
+                            <div class="w-28 h-34 bg-red-600 flex items-center justify-center mr-0
+                             md:mr-6 mb-4 md:mb-0">
+                                   <img src=".\assets\National_Cadet_Corps.jpg"alt="">
+                            </div>
+                            <div>
+                                <p class="text-gray-600">Three colors represent:</p>
+                                <ul class="text-gray-600 list-disc pl-5">
+                                    <li class="mt-1"><span class="font-semibold">Red</span>: Army</li>
+                                    <li class="mt-1"><span class="font-semibold">Dark Blue</span>: Navy</li>
+                                    <li class="mt-1"><span class="font-semibold">Light Blue</span>: Air Force</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <p class="text-gray-600">The NCC flag for various directorates within the state contain 
+                            the NCC logo and the name of the Directorate in gold on the middle band.</p>
+                    </div>
+                </div>
+                <div>
+                    <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">The NCC Song</h3>
+                        <div class="bg-red-50 rounded-lg p-4 mb-4">
+                            <p class="font-semibold text-gray-800 italic">"Hum Sab Bharatiya Hain, Hum Sab Bharatiya Hain"</p>
+                            <p class="text-sm text-gray-600 mt-2">NCC song was adopted in 1963 when the entire country 
+                                was celebrating its presence for 15 long years</p>
+                        </div>
+                        <p class="text-gray-600 mb-4">The song is played while marching contingents cross the saluting
+                             base during Republic Day parade and other ceremonial parades.</p>
+                        <button onclick="toggleContent('song-content')" class="text-red-600 font-semibold flex items-center">
+                            View Full Lyrics <i class="fas fa-chevron-down ml-2 text-sm"></i>
+                        </button>
+                        <div id="song-content" class="toggle-content">
+                            <div class="bg-gray-50 p-4 mt-3 rounded-lg">
+
+                                <p class="text-gray-800 font-medium mb-2">Hum Sab Bharatiya Hain, Hum Sab Bharatiya Hain</p>
+                                <p class="text-gray-600 text-sm">Apni Manzil Ek Hai,<br>
+                                Ha, Ha, Ha, Ek Hai,<br>
+                                ho ho ho, Ek Hai,<br>
+                                Hum Sab Bharatiya Hain.</p>
+
+                                <p class="text-gray-800 font-medium mt-3 mb-2">Kashmir Ki Dharti Rani Hai,<br>
+                                Sartaj Himalaya Hai,</p>
+                                <p class="text-gray-600 text-sm">Saadiyon Se Humne Isko Apne Khoon Se Pala Hai<br>
+                                Desh Ki Raksha Ki Khathir Hum Shamshir Utha Lenge,<br>
+                                Hum Shamshir Utha Lenge.</p>
+
+                                <p class="text-gray-800 font-medium mb-2">Bikhre bikhre taare hain hum lekin jhilmil ek hai...</p>
+                                <P class="text-gray-600 text-sm">Ha, ha, ha, ek hai,<br>
+                                    hum sab Bhartiya hain, <br>
+                                <p class="text-gray-800 font-medium mt-3 mb-2">Mandir Gurudwaare bhi hain yahan, <br>
+                                  aur masjid bhi hai yahan...</p>
+
+                                <p class="text-gray-600 text-sm">Girija ka hai ghadiyal kahin, mulla ki kahin hai azaan,<br>
+                                Sartaj Himalaya Hai,</p>
+                                <p class="text-gray-600 text-sm">Ek hi apna Ram hai, <br>
+                                    ek hi Allah Taala hai  <br>
+
+                                 <p class="text-gray-800 font-medium mt-3 mb-2">Rang-birange deepak hain hum, <br>
+                                    lekin jagmag ek hai </p>
+                                    
+                                 <p class="text-gray-600 text-sm">Ha ha ha ek hai,<br>
+                                    ho ho ho ek hai </p>
+
+                                    <p class="text-gray-800 font-medium mt-3 mb-2">Hum sab Bhartiya hain, hum sab Bhartiya hain<br></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-gray-800 text-white py-10" style="scroll-margin-top:8rem;">
+        <div class="container mx-auto px-4 sm:px-6">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">NCC</h3>
+                    <p class="text-gray-300">The National Cadet Corps is the youth wing of the Indian Armed Forces with its headquarters in New Delhi, India.</p>
+                </div>
+                
+                
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Name Of SUB UNIT Contacts</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker -alt mt-1 mr-2 text-sm"></i>
+                            <a href="https://maps.app.goo.gl/C47VgGsTcSvwumJA7" target="_blank" 
+                            rel="noopener noreferrer">B K Birla Institute of Engineering and Technology, PILANI</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-2 text-sm"></i>
+                            <a href="tel:+919784287553">+91 9784287553</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-sm"></i>
+                            <a href="mailto:anil.kumar@bkbiet.ac.in">anil.kumar@bkbiet.ac.in</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-phone-alt mr-2 text-sm"></i>
+                            <a href="tel:+918696712021">+91 8696712021</a>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fas fa-envelope mr-2 text-sm"></i>
+                            <a href="mailto:tejpalsaini.bkbiet.ncc.ac.in@gmail.com">tejpalsaini.bkbiet.ncc.ac.in@gmail.com</a>
+                        </li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Name Of UNIT</h3>
+                    <ul class="space-y-2 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-sm"></i>
+                            <span>1 RAJ CTR NCC, PILANI ,
+                                  GP HQ - JAIPUR 
+                                  DIR - RAJASTHAN</span>
+                        </li>
+                        </ul>
+                        </div>
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+                    <div class="flex space-x-4">
+                        
+                        <a href="https://www.instagram.com/ncc_bkbiet?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://www.youtube.com/@ncc_army_wing_youthpower_" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-500">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2023 National Cadet Corps, India. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+
+    <script src="script.js"></script>
+
+</body>
+</html>
+
