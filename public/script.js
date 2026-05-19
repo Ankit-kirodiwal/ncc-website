@@ -710,7 +710,7 @@ async function loadStudentProfile(token) {
 async function loadMyAttendance() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("http://localhost:5000/api/attendance/my-attendance", {
+  const res = await fetch("/api/attendance/my-attendance", {
     headers: {
       Authorization: `Bearer ${token}`
     }
