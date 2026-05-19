@@ -7,8 +7,8 @@ function toggleContent(id) {
   }
 }
 
-const API_BASE = "http://localhost:5000/api";
-const SERVER_ORIGIN = API_BASE.replace(/\/api$/, "");
+const API_BASE = "/api";
+const SERVER_ORIGIN = window.location.origin;
 const CONTENT_PLACEHOLDER_IMAGE = "./achivement images/user.png";
 const GALLERY_PLACEHOLDER_IMAGE = "./assets/mainimg1.jpg";
 
