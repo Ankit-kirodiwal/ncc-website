@@ -1143,6 +1143,17 @@ function startEditContentItem(itemId) {
     return;
   }
 
+  const contentPopup = document.getElementById("contentPopup");
+  const assetsPopup = document.getElementById("assetsPopup");
+
+  if (assetsPopup) {
+    assetsPopup.classList.add("hidden");
+  }
+
+  if (contentPopup) {
+    contentPopup.classList.remove("hidden");
+  }
+
   document.getElementById("contentItemId").value = item._id;
   document.getElementById("contentSection").value = item.section;
   document.getElementById("contentTitle").value = item.title || "";
