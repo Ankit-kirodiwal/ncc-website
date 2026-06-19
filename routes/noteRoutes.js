@@ -22,8 +22,9 @@ fs.mkdirSync(localNotesDir, { recursive: true });
 function getCloudinaryResourceType(extension) {
   const normalized = String(extension || "").toLowerCase();
   if (normalized === ".pdf") {
-    return "local-pdf";
+    return "image";
   }
+
 
   const documentExtensions = new Set([
     ".doc",
@@ -115,11 +116,7 @@ router.post("/", authMiddleware, upload.single("noteFile"), async (req, res) => 
     let cloudinaryPublicId = "";
     let storageType = "cloudinary";
 
-    if (resourceType === "local-pdf") {
-      const localFile = await saveLocalNoteFile(req.file.buffer, originalName);
-      fileLink = localFile.fileLink;
-      storageType = "local";
-    } else {
+    try {
       const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
         folder: "ncc-notes",
         resource_type: resourceType,
@@ -131,6 +128,22 @@ router.post("/", authMiddleware, upload.single("noteFile"), async (req, res) => 
 
       fileLink = uploadResult.secure_url;
       cloudinaryPublicId = uploadResult.public_id;
+    } catch (uploadError) {
+      if (resourceType === "image" && extension === ".pdf") {
+        console.warn("PDF upload as image failed, retrying as raw:", uploadError.message || uploadError);
+        const uploadResult = await uploadBufferToCloudinary(req.file.buffer, {
+          folder: "ncc-notes",
+          resource_type: "raw",
+          use_filename: true,
+          unique_filename: true,
+          filename_override: originalName,
+          public_id: `note-${Date.now()}-${safeBaseName}${extension}`
+        });
+        fileLink = uploadResult.secure_url;
+        cloudinaryPublicId = uploadResult.public_id;
+      } else {
+        throw uploadError;
+      }
     }
 
     const newNote = new Note({
