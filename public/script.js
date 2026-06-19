@@ -117,6 +117,108 @@ function factsToTextareaValue(facts = []) {
     .join("\n");
 }
 
+const PAGE_HASH_MAP = {
+  home: "#home",
+  about: "#about-ncc",
+  bkbiet: "#bkbiet-ncc",
+  camps: "#camps",
+  contact: "#contact"
+};
+
+const PAGE_ALIAS_MAP = {
+  home: "home",
+  introhome: "home",
+  "about-ncc": "about",
+  aimabout: "about",
+  "bkbiet-ncc": "bkbiet",
+  leadership: "bkbiet",
+  achievements: "bkbiet",
+  gallery: "bkbiet",
+  nationalCampsSection: "bkbiet",
+  camps: "camps",
+  contact: "contact"
+};
+
+const HASH_ANCHOR_IDS = new Set([
+  "introhome",
+  "aimabout",
+  "leadership",
+  "achievements",
+  "nationalCampsSection",
+  "gallery",
+  "camps",
+  "contact"
+]);
+
+function resolvePageStateFromHash(hashValue) {
+  const cleanedHash = String(hashValue || "").replace(/^#/, "");
+
+  if (!cleanedHash) {
+    return {
+      pageKey: "home",
+      anchorId: null
+    };
+  }
+
+  return {
+    pageKey: PAGE_ALIAS_MAP[cleanedHash] || "home",
+    anchorId: HASH_ANCHOR_IDS.has(cleanedHash) ? cleanedHash : null
+  };
+}
+
+function updateNavigationState(pageKey) {
+  document.querySelectorAll("[data-page-link]").forEach((link) => {
+    const isActive = link.dataset.pageLink === pageKey;
+    link.classList.toggle("nav-link-active", isActive);
+
+    if (isActive) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+function activatePage(pageKey, options = {}) {
+  const normalizedPageKey = PAGE_HASH_MAP[pageKey] ? pageKey : "home";
+  const {
+    anchorId = null,
+    smooth = true,
+    updateHistory = false
+  } = options;
+
+  document.querySelectorAll("[data-page-section]").forEach((section) => {
+    section.classList.toggle("is-active", section.dataset.pageSection === normalizedPageKey);
+  });
+
+  updateNavigationState(normalizedPageKey);
+
+  const targetHash = anchorId ? `#${anchorId}` : PAGE_HASH_MAP[normalizedPageKey];
+
+  if (updateHistory && window.location.hash !== targetHash) {
+    window.history.pushState({ pageKey: normalizedPageKey }, "", targetHash);
+  }
+
+  window.requestAnimationFrame(() => {
+    if (anchorId) {
+      const anchorElement = document.getElementById(anchorId);
+
+      if (anchorElement) {
+        anchorElement.scrollIntoView({
+          behavior: smooth ? "smooth" : "auto",
+          block: "start"
+        });
+        return;
+      }
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: smooth ? "smooth" : "auto"
+    });
+  });
+}
+
 function updateContentFormBySection(section) {
   const profile = contentFormProfiles[section] || contentFormProfiles.achievements;
   const titleInput = document.getElementById("contentTitle");
@@ -276,6 +378,35 @@ document.addEventListener("DOMContentLoaded", () => {
     mobileMenuLinks.forEach(link => {
       link.addEventListener("click", () => {
         mobileMenu.classList.add("hidden");
+      });
+    });
+  }
+
+  const pageLinks = document.querySelectorAll("[data-page-link]");
+
+  if (pageLinks.length) {
+    pageLinks.forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+
+        activatePage(link.dataset.pageLink, {
+          smooth: false,
+          updateHistory: true
+        });
+      });
+    });
+
+    const initialPageState = resolvePageStateFromHash(window.location.hash);
+    activatePage(initialPageState.pageKey, {
+      anchorId: initialPageState.anchorId,
+      smooth: false
+    });
+
+    window.addEventListener("popstate", () => {
+      const pageState = resolvePageStateFromHash(window.location.hash);
+      activatePage(pageState.pageKey, {
+        anchorId: pageState.anchorId,
+        smooth: false
       });
     });
   }

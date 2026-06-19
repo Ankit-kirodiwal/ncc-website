@@ -25,12 +25,11 @@
         </div>
         <!-- Desktop Menu -->
         <div class="desktop-nav">
-            <a href="#introhome" class="text-gray-600 hover:text-red-600">Home</a>
-            <a href="#aimabout" class="text-gray-600 hover:text-red-600">About</a>
-            <a href="#achievements" class="text-gray-600 hover:text-red-600">Achievements</a>
-            <a href="#gallery" class="text-gray-600 hover:text-red-600">Gallery</a>
-            <a href="#camps" class="text-gray-600 hover:text-red-600">Camps</a>
-            <a href="#contact" class="text-gray-600 hover:text-red-600">Contact</a>
+            <a href="#home" data-page-link="home" class="nav-link text-gray-600 hover:text-red-600">Home</a>
+            <a href="#about-ncc" data-page-link="about" class="nav-link text-gray-600 hover:text-red-600">About NCC</a>
+            <a href="#bkbiet-ncc" data-page-link="bkbiet" class="nav-link text-gray-600 hover:text-red-600">BKBIET NCC</a>
+            <a href="#camps" data-page-link="camps" class="nav-link text-gray-600 hover:text-red-600">Camps</a>
+            <a href="#contact" data-page-link="contact" class="nav-link text-gray-600 hover:text-red-600">Contact</a>
             <a href="login.html" id="loginNavBtnDesktop" class="text-gray-600 hover:text-red-600">Login</a>
             <button id="logoutNavBtnDesktop" class="text-gray-600 hover:text-red-600 hidden">Logout</button>
         </div>
@@ -41,18 +40,19 @@
     </div>
     <!-- Mobile Menu -->
     <div id="mobileMenu" class="mobile-nav-menu hidden">
-        <a href="#introhome" class="block py-2 text-gray-600 hover:text-red-600">Home</a>
-        <a href="#aimabout" class="block py-2 text-gray-600 hover:text-red-600">About</a>
-        <a href="#achievements" class="block py-2 text-gray-600 hover:text-red-600">Achievements</a>
-        <a href="#gallery" class="block py-2 text-gray-600 hover:text-red-600">Gallery</a>
-        <a href="#camps" class="block py-2 text-gray-600 hover:text-red-600">Camps</a>
-        <a href="#contact" class="block py-2 text-gray-600 hover:text-red-600">Contact</a>
+        <a href="#home" data-page-link="home" class="nav-link block py-2 text-gray-600 hover:text-red-600">Home</a>
+        <a href="#about-ncc" data-page-link="about" class="nav-link block py-2 text-gray-600 hover:text-red-600">About NCC</a>
+        <a href="#bkbiet-ncc" data-page-link="bkbiet" class="nav-link block py-2 text-gray-600 hover:text-red-600">BKBIET NCC</a>
+        <a href="#camps" data-page-link="camps" class="nav-link block py-2 text-gray-600 hover:text-red-600">Camps</a>
+        <a href="#contact" data-page-link="contact" class="nav-link block py-2 text-gray-600 hover:text-red-600">Contact</a>
         <a href="login.html" id="loginNavBtnMobile" class="block py-2 text-gray-600 hover:text-red-600">Login</a>
         <button id="logoutNavBtnMobile" class="block py-2 text-gray-600 hover:text-red-600 hidden">Logout</button>
     </div>
 </nav>
+<main class="page-stack">
+<section id="home" class="site-page is-active" data-page-section="home">
     <!-- Hero Section -->
-<div class="relative overflow-hidden py-6 sm:py-8 md:py-10">
+<div class="relative overflow-hidden py-6 sm:py-8 md:py-10 page-hero">
     <div class="flex items-center justify-center">
         <div class="container mx-auto px-4 sm:px-6 text-center text-white">
             
@@ -340,7 +340,7 @@
 
 <!-- NCC Information Section (responsive: 1 column on small, 2 columns on md+) -->
 <section class="mb-20" id="ncc-info">
-  <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">NCC Information</h2>
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">Important Information</h2>
 
   <!-- Grid: 1 column on mobile, 2 columns on md and above -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -408,12 +408,19 @@
 
   </div>
 </section>
+    </div>
+</section>
 
-
+<section id="about-ncc" class="site-page" data-page-section="about">
+    <div class="container mx-auto px-4 sm:px-6 py-10 sm:py-12">
+        <div id="aimabout" class="page-header-block" style="scroll-margin-top:6rem;">
+            <h1 class="page-title">About NCC</h1>
+            <p class="page-description">Explore the history, aims, benefits, values, structure, and divisions of the National Cadet Corps.</p>
+        </div>
 
         <!-- History Section -->
-        <section id="aimabout" class="mb-10" style="scroll-margin-top:8rem;">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">History of NCC</h2>
+        <section class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">History of NCC</h2>
             <div class="grid md:grid-cols-3 gap-8">
                 <!-- History Card 1 -->
                 <div class="bg-white p-6 rounded-lg shadow-md history-card transition duration-300 border-t-4 border-red-600">
@@ -460,8 +467,8 @@
         </section>
 
         <!-- Aims & Objectives Section -->
-        <section class="mb-10">
-            <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">Aims & Objectives</h2>
+        <section class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">Aims & Objectives</h2>
             <div class="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div class="md:grid md:grid-cols-2">
                     <div class="p-8 shadow-md border-t-4 border-red-600">
@@ -499,9 +506,9 @@
         </section>
 
 <!-- benifites -->
-<section class="mb-10">
+<section class="mb-6">
 
-<h2 class="text-3xl font-bold text-gray-800 mb-10 section-title">NCC Benefits</h2>
+<h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">NCC Benefits</h2>
 <div class="grid md:grid-cols-3 gap-8">
 
     <!-- Value 1 -->
@@ -622,8 +629,8 @@
 
  <!-- our cour value section -->
   
-        <section  class="mb-10 mt-10">
-            <h2 class="text-3xl font-bold text-gray-800 mb-10 section-title">Our Core Values</h2>
+        <section  class="mb-6 , mt-4">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">Our Core Values</h2>
             <div class="grid md:grid-cols-3 gap-8">
                 <!-- Value 1 -->
                 <div class="values-card bg-white p-6 rounded-lg shadow-md border-t-4 border-red-600">
@@ -666,8 +673,8 @@
         </section>
 
 <!-- Organization Structure Section -->
-<section class="mb-10">
-    <h2 class="text-3xl font-bold text-gray-800 mb-6 section-title">Organization Structure</h2>
+<section class="mb-6">
+    <h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">Organization Structure</h2>
     <div class="bg-white rounded-xl shadow-lg overflow-hidden">
         <div class="md:grid md:grid-cols-2">
             <div class="border-t-4 border-red-600 pl-4 p-8">
@@ -715,8 +722,8 @@
 
 
         <!-- Wings & Divisions Section -->
-        <section class="mb-10" >
-            <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">Wings & Divisions</h2>
+        <section class="mb-6" >
+            <h2 class="text-3xl font-bold text-gray-800 mb-4 section-title">Wings & Divisions</h2>
             <div class="grid md:grid-cols-3 gap-8">
                 <!-- Army Wing -->
                 <div id="divisions" class="bg-white rounded-lg shadow-md overflow-hidden">
@@ -776,8 +783,18 @@
 
 
 
+</div>
+</section>
+
+<section id="bkbiet-ncc" class="site-page" data-page-section="bkbiet">
+    <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div class="page-header-block">
+            <h1 class="page-title">BKBIET NCC</h1>
+            <p class="page-description">Leadership, cadet achievements, national camp highlights, and the student achievements gallery are organized here.</p>
+        </div>
+
 <!-- Leadership & Mentorship at BKBIET section -->
-<section  class="mb-20" id="leadership">
+<section class="mb-20" id="leadership">
     <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">Leadership & Mentorship at BKBIET</h2>
     
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -844,17 +861,28 @@
 
 <!-- Gallery of Students Section -->
 <section id="gallery" class="mb-20" style="scroll-margin-top:8rem;">
-    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">Our Students Gallery</h2>
+    <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center section-title">Student Achievements Gallery</h2>
 
     <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 dynamic-gallery-grid">
         <div class="content-loading-card">Loading gallery...</div>
     </div>
 </section>
+</div>
+</section>
 
-        <!-- NCC Camps Section -->
-        <section  id="camps" class="mb-20" style="scroll-margin-top:8rem;">
+<section id="camps" class="site-page" data-page-section="camps">
+    <div class="container mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        <div class="page-header-block">
+            <h1 class="page-title">NCC Camps</h1>
+            <p class="page-description">Camp information, special and national camp highlights, additional training opportunities, and the NCC flag and song are grouped in one place.</p>
+        </div>
+
+        <section class="mb-20">
             <h2 class="text-3xl font-bold text-gray-800 mb-8 section-title">NCC Camps</h2>
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="md:col-span-2 lg:col-span-3">
+                    <h3 class="text-2xl font-bold text-gray-800">National Camps</h3>
+                </div>
                 <!-- Camp 1 -->
                 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow">
                     <div class="h-39 bg-red-600 flex items-center justify-center text-white">
@@ -895,6 +923,10 @@
                         <p class="text-gray-600">Promotes national integration through cultural exchange 
                             programs and adventure activities with cadets from across India.</p>
                     </div>
+                </div>
+
+                <div class="md:col-span-2 lg:col-span-3 pt-2">
+                    <h3 class="text-2xl font-bold text-gray-800">Special Camps</h3>
                 </div>
 
                 <!-- Camp 4 -->
@@ -942,7 +974,7 @@
 
 <!-- Additional NCC Camps List -->
 <div class="mt-12 bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
-    <h3 class="text-2xl font-bold text-gray-800 mb-4">Other NCC Camps</h3>
+    <h3 class="text-2xl font-bold text-gray-800 mb-4">Additional Training Camps</h3>
     <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
         <li class="flex items-center">
             <i class="fas fa-check-circle text-red-600 mr-2"></i> Prime Minister’s Rally
@@ -996,10 +1028,6 @@
     </ul>
 </div>
 
-<!-- Font Awesome CDN (Head section me add karo) -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-
         </section>
         <!-- NCC Flag & Song Section -->
         <section class="mb-20">
@@ -1007,7 +1035,7 @@
             <div class="grid md:grid-cols-2 gap-10">
                 <div>
                     <div class="bg-white rounded-lg shadow-md p-6 mb-8 border-t-4 border-red-600">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">The NCC Flag</h3>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">NCC Flag Section</h3>
                         <div class="flex flex-col md:flex-row items-center mb-4">
                             <div class="w-28 h-34 bg-red-600 flex items-center justify-center mr-0
                              md:mr-6 mb-4 md:mb-0">
@@ -1028,7 +1056,7 @@
                 </div>
                 <div>
                     <div class="bg-white rounded-lg shadow-md p-6 border-t-4 border-red-600">
-                        <h3 class="text-xl font-bold text-gray-800 mb-4">The NCC Song</h3>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">NCC Song Section</h3>
                         <div class="bg-red-50 rounded-lg p-4 mb-4">
                             <p class="font-semibold text-gray-800 italic">"Hum Sab Bharatiya Hain, Hum Sab Bharatiya Hain"</p>
                             <p class="text-sm text-gray-600 mt-2">NCC song was adopted in 1963 when the entire country 
@@ -1079,9 +1107,12 @@
             </div>
         </section>
     </div>
+</section>
 
+<section id="contact" class="site-page site-page-contact" data-page-section="contact" style="scroll-margin-top:8rem;">
+    <div class="page-contact-shell">
     <!-- Footer -->
-    <footer id="contact" class="bg-gray-800 text-white py-10" style="scroll-margin-top:8rem;">
+    <footer class="bg-gray-800 text-white py-10">
         <div class="container mx-auto px-4 sm:px-6">
             <div class="grid md:grid-cols-4 gap-8">
                 <div>
@@ -1146,10 +1177,12 @@
             </div>
         </div>
     </footer>
+    </div>
+</section>
+</main>
 
 
     <script src="script.js"></script>
 
 </body>
 </html>
-
