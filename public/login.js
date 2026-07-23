@@ -153,10 +153,8 @@ document.getElementById("studentLoginForm").addEventListener("submit", async (e)
     const result = await res.json();
 
     if (res.ok && result.user.role === "student") {
-      sessionStorage.setItem("token", result.token);
-      sessionStorage.setItem("user", JSON.stringify(result.user));
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
       showMessage("Student login successful", "green");
       setTimeout(() => {
         window.location.href = "index.html";
@@ -249,13 +247,11 @@ document.getElementById("adminLoginForm").addEventListener("submit", async (e) =
     const result = await res.json();
 
     if (res.ok && result.user.role === "admin") {
-      sessionStorage.setItem("token", result.token);
-      sessionStorage.setItem("user", JSON.stringify(result.user));
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+      localStorage.setItem("token", result.token);
+      localStorage.setItem("user", JSON.stringify(result.user));
       showMessage("Admin login successful", "green");
       setTimeout(() => {
-        window.location.href = "admin/erp2.html";
+        window.location.href = "index.html";
       }, 1000);
     } else {
       showMessage(result.message || "Invalid admin login", "red");

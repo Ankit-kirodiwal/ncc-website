@@ -28,13 +28,12 @@ const state = {
 };
 
 function getToken() {
-  return sessionStorage.getItem("token") || localStorage.getItem("token");
+  return localStorage.getItem("token");
 }
 
 function getUser() {
   try {
-    const raw = sessionStorage.getItem("user") || localStorage.getItem("user");
-    return JSON.parse(raw || "{}");
+    return JSON.parse(localStorage.getItem("user") || "{}");
   } catch (_) {
     return {};
   }

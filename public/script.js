@@ -434,8 +434,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Auth / role-based UI
-  const token = getAuthToken();
-  const userData = getRawAuthUser();
+  const token = localStorage.getItem("token");
+  const userData = localStorage.getItem("user");
 
   const userBar = document.getElementById("userBar");
   const welcomeUser = document.getElementById("welcomeUser");
@@ -501,7 +501,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtnMobile) logoutBtnMobile.classList.remove("hidden");
   
   function handleLogout() {
-    clearAuthAndRedirect("");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    window.location.href = "index.html";
   }
   if (logoutBtnDesktop) logoutBtnDesktop.addEventListener("click", handleLogout);
   if (logoutBtnMobile) logoutBtnMobile.addEventListener("click", handleLogout);
