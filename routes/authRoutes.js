@@ -44,6 +44,51 @@ function validatePasswordLength(password) {
   return null;
 }
 
+// Rate Limiting Store for Logins (per 1 hour window)
+const loginAttemptsMap = new Map();
+
+// Periodic cleanup of expired timestamps (every 10 minutes)
+setInterval(() => {
+  const now = Date.now();
+  const oneHourAgo = now - 60 * 60 * 1000;
+  for (const [key, timestamps] of loginAttemptsMap.entries()) {
+    const valid = timestamps.filter((t) => t > oneHourAgo);
+    if (valid.length === 0) {
+      loginAttemptsMap.delete(key);
+    } else {
+      loginAttemptsMap.set(key, valid);
+    }
+  }
+}, 10 * 60 * 1000);
+
+function checkLoginRateLimit(ip, loginId, role = "student") {
+  const windowMs = 60 * 60 * 1000; // 1 hour
+  const maxAttempts = role === "admin" ? 10 : 5;
+  const key = `${ip}:${(loginId || "unknown").toLowerCase()}`;
+  const now = Date.now();
+  const windowStart = now - windowMs;
+
+  let timestamps = loginAttemptsMap.get(key) || [];
+  timestamps = timestamps.filter((t) => t > windowStart);
+
+  if (timestamps.length >= maxAttempts) {
+    const oldestInWindow = timestamps[0];
+    const retryAfterMs = oldestInWindow + windowMs - now;
+    const retryAfterMins = Math.ceil(retryAfterMs / (60 * 1000));
+    return {
+      allowed: false,
+      maxAttempts,
+      retryAfterMins,
+      message: `Too many login attempts. ${role === "admin" ? "Admins" : "Normal users"} can only log in up to ${maxAttempts} times per hour. Please try again in ${retryAfterMins} minutes.`
+    };
+  }
+
+  timestamps.push(now);
+  loginAttemptsMap.set(key, timestamps);
+
+  return { allowed: true };
+}
+
 // Student Register Route
 router.post("/register", async (req, res) => {
   try {
@@ -228,6 +273,14 @@ router.post("/login", async (req, res) => {
     const user = await User.findOne({
       $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId.toUpperCase() }]
     });
+
+    const targetRole = user?.role === "admin" ? "admin" : "student";
+    const clientIp = req.ip || req.headers["x-forwarded-for"] || "ip";
+
+    const rateLimitResult = checkLoginRateLimit(clientIp, normalizedLoginId, targetRole);
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({ message: rateLimitResult.message });
+    }
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
