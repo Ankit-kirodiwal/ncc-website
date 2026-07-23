@@ -835,8 +835,6 @@ async function updateAttendance(studentId) {
 
 async function loadStudentProfile(token) {
   const studentAttendance = document.getElementById("studentAttendance");
-  if (!studentAttendance) return;
-
   try {
     const res = await fetch(`${API_BASE}/auth/me`, {
       headers: {
@@ -847,29 +845,41 @@ async function loadStudentProfile(token) {
     const user = await res.json();
 
     if (!res.ok) {
-      studentAttendance.textContent = "Error";
+      if (studentAttendance) studentAttendance.textContent = "Error";
       return;
     }
 
-    studentAttendance.textContent = user.attendance ?? 0;
+    if (studentAttendance) studentAttendance.textContent = `${user.attendance ?? 0}%`;
     sessionStorage.setItem("user", JSON.stringify(user));
   } catch (error) {
-    studentAttendance.textContent = "Error";
+    if (studentAttendance) studentAttendance.textContent = "Error";
   }
 }
 
 async function loadMyAttendance() {
   const token = getAuthToken();
+  if (!token) return;
 
-  const res = await fetch("/api/attendance/my-attendance", {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+  try {
+    const res = await fetch("/api/attendance/my-attendance", {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
 
-  const data = await res.json();
+    if (!res.ok) return;
+    const data = await res.json();
 
-  document.getElementById("studentAttendance").textContent = data.percentage;
+    const attendanceElem = document.getElementById("studentAttendance");
+    const totalElem = document.getElementById("studentTotalDays");
+    const presentElem = document.getElementById("studentPresentDays");
+
+    if (attendanceElem) attendanceElem.textContent = `${data.percentage ?? 0}%`;
+    if (totalElem) totalElem.textContent = data.totalDays ?? 0;
+    if (presentElem) presentElem.textContent = data.presentDays ?? 0;
+  } catch (error) {
+    console.error("Error loading my attendance:", error);
+  }
 }
 
 // ====================  STUDENT ATTENDANCE HISTORY ====================

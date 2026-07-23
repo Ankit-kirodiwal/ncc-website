@@ -255,7 +255,7 @@ document.getElementById("adminLoginForm").addEventListener("submit", async (e) =
       localStorage.removeItem("user");
       showMessage("Admin login successful", "green");
       setTimeout(() => {
-        window.location.href = "index.html";
+        window.location.href = "admin/erp2.html";
       }, 1000);
     } else {
       showMessage(result.message || "Invalid admin login", "red");
