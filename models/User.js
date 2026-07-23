@@ -6,7 +6,8 @@ function extractEnrollmentYear(regimentalNo) {
     return null;
   }
 
-  const normalized = regimentalNo.trim().toUpperCase();
+  // Cap regimentalNo length at 30 characters to prevent ReDoS CPU exhaustion
+  const normalized = regimentalNo.trim().toUpperCase().slice(0, 30);
 
   const fourDigitMatch = normalized.match(/[A-Z]+(\d{4})(?=[A-Z])/);
   if (fourDigitMatch) {

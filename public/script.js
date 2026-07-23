@@ -8,6 +8,28 @@ function toggleContent(id) {
 }
 
 const API_BASE = "/api";
+
+function escapeHTML(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+async function copyTextToClipboard(text, successMessage = "Copied to clipboard!") {
+  try {
+    const cleanText = String(text || "").trim();
+    if (!cleanText) return;
+    await navigator.clipboard.writeText(cleanText);
+    alert(successMessage);
+  } catch (err) {
+    console.error("Clipboard copy failed:", err);
+  }
+}
+
 const SERVER_ORIGIN = window.location.origin;
 const CONTENT_PLACEHOLDER_IMAGE = "./achivement images/user.png";
 const GALLERY_PLACEHOLDER_IMAGE = "./assets/mainimg1.jpg";

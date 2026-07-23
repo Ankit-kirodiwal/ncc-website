@@ -32,15 +32,35 @@ function generateNumericOtp() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+function sanitizeString(val, maxLen = 255) {
+  if (typeof val !== "string") return "";
+  return val.trim().slice(0, maxLen);
+}
+
+function validatePasswordLength(password) {
+  if (typeof password !== "string") return "Password must be a valid string.";
+  if (password.length < 6) return "Password must be at least 6 characters.";
+  if (password.length > 72) return "Password cannot exceed 72 characters.";
+  return null;
+}
+
 // Student Register Route
 router.post("/register", async (req, res) => {
   try {
-    const { regimentalNo, name, fatherName, dob, email, password } = req.body;
-    const normalizedEmail = email?.trim().toLowerCase();
-    const normalizedRegimentalNo = regimentalNo?.trim();
+    const normalizedRegimentalNo = sanitizeString(req.body.regimentalNo, 50).toUpperCase();
+    const name = sanitizeString(req.body.name, 100);
+    const fatherName = sanitizeString(req.body.fatherName, 100);
+    const dob = sanitizeString(req.body.dob, 30);
+    const normalizedEmail = sanitizeString(req.body.email, 150).toLowerCase();
+    const rawPassword = req.body.password;
 
-    if (!normalizedRegimentalNo || !name || !fatherName || !dob || !normalizedEmail || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!normalizedRegimentalNo || !name || !fatherName || !dob || !normalizedEmail || !rawPassword) {
+      return res.status(400).json({ message: "All fields are required and must be valid text strings." });
+    }
+
+    const passwordError = validatePasswordLength(rawPassword);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
     }
 
     const existingUser = await User.findOne({
@@ -59,7 +79,7 @@ router.post("/register", async (req, res) => {
       fatherName,
       dob,
       email: normalizedEmail,
-      password,
+      password: rawPassword,
       role: "student",
       status: "pending"
     });
@@ -78,9 +98,8 @@ router.post("/register", async (req, res) => {
 // Student forgot password OTP request
 router.post("/forgot-password/request-otp", async (req, res) => {
   try {
-    const { loginId, dob } = req.body;
-    const normalizedLoginId = loginId?.trim();
-    const normalizedDob = formatDateOnly(dob);
+    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
+    const normalizedDob = formatDateOnly(req.body.dob);
     const mailConfigError = getMailConfigError();
 
     if (mailConfigError) {
@@ -93,7 +112,7 @@ router.post("/forgot-password/request-otp", async (req, res) => {
 
     const user = await User.findOne({
       role: "student",
-      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId }]
+      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId.toUpperCase() }]
     });
 
     if (!user) {
@@ -134,22 +153,23 @@ router.post("/forgot-password/request-otp", async (req, res) => {
 
 router.post("/forgot-password/verify-otp", async (req, res) => {
   try {
-    const { loginId, dob, otp, newPassword } = req.body;
-    const normalizedLoginId = loginId?.trim();
-    const normalizedDob = formatDateOnly(dob);
-    const normalizedOtp = String(otp || "").trim();
+    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
+    const normalizedDob = formatDateOnly(req.body.dob);
+    const normalizedOtp = sanitizeString(String(req.body.otp || ""), 10);
+    const newPassword = req.body.newPassword;
 
     if (!normalizedLoginId || !normalizedDob || !normalizedOtp || !newPassword) {
       return res.status(400).json({ message: "Login ID, date of birth, OTP, and new password are required." });
     }
 
-    if (newPassword.length < 6) {
-      return res.status(400).json({ message: "New password must be at least 6 characters." });
+    const passwordError = validatePasswordLength(newPassword);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
     }
 
     const user = await User.findOne({
       role: "student",
-      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId }]
+      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId.toUpperCase() }]
     });
 
     if (!user) {
@@ -193,15 +213,20 @@ router.post("/forgot-password/verify-otp", async (req, res) => {
 // Login Route
 router.post("/login", async (req, res) => {
   try {
-    const { loginId, password } = req.body;
-    const normalizedLoginId = loginId?.trim();
+    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
+    const password = req.body.password;
 
     if (!normalizedLoginId || !password) {
       return res.status(400).json({ message: "Login ID and password are required" });
     }
 
+    const passwordError = validatePasswordLength(password);
+    if (passwordError) {
+      return res.status(400).json({ message: passwordError });
+    }
+
     const user = await User.findOne({
-      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId }]
+      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId.toUpperCase() }]
     });
 
     if (!user) {

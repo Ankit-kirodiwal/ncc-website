@@ -10,6 +10,11 @@ const {
 const router = express.Router();
 const VALID_STATUSES = new Set(["present", "absent", "leave"]);
 
+function toSafeString(val, maxLen = 255) {
+  if (typeof val !== "string") return "";
+  return val.trim().slice(0, maxLen);
+}
+
 function getActorId(req) {
   return req.user?.userId || req.user?.id || req.user?._id || null;
 }
@@ -33,14 +38,15 @@ function normalizeStatus(status) {
     leave: "leave"
   };
 
-  return map[String(status || "").trim().toLowerCase()] || null;
+  return map[toSafeString(status, 20).toLowerCase()] || null;
 }
 
 function buildStudentQuery(year, options = {}) {
+  const safeYear = toSafeString(year, 20);
   const query = { role: "student" };
   const allowPassout = options.allowPassout !== false;
 
-  if (!year || year === "all") {
+  if (!safeYear || safeYear === "all") {
     query.status = allowPassout
       ? { $in: ["approved", "passout"] }
       : "approved";
@@ -50,7 +56,7 @@ function buildStudentQuery(year, options = {}) {
     };
   }
 
-  if (year === "passout") {
+  if (safeYear === "passout") {
     query.isPassout = true;
     query.status = "passout";
     return {
@@ -59,7 +65,7 @@ function buildStudentQuery(year, options = {}) {
     };
   }
 
-  const numericYear = Number(year);
+  const numericYear = Number(safeYear);
   if (!Number.isInteger(numericYear) || numericYear < 1 || numericYear > 3) {
     return null;
   }
@@ -75,16 +81,19 @@ function buildStudentQuery(year, options = {}) {
 }
 
 function buildDateFilter(startDate, endDate) {
-  if (!startDate && !endDate) {
+  const safeStart = toSafeString(startDate, 30);
+  const safeEnd = toSafeString(endDate, 30);
+
+  if (!safeStart && !safeEnd) {
     return undefined;
   }
 
   const filter = {};
-  if (startDate) {
-    filter.$gte = startDate;
+  if (safeStart) {
+    filter.$gte = safeStart;
   }
-  if (endDate) {
-    filter.$lte = endDate;
+  if (safeEnd) {
+    filter.$lte = safeEnd;
   }
 
   return filter;
@@ -107,11 +116,12 @@ function summarizeRecords(records) {
 }
 
 async function updateStudentAttendancePercentage(regNo) {
-  const records = await Attendance.find({ regNo }).lean();
+  const safeRegNo = toSafeString(regNo, 50).toUpperCase();
+  const records = await Attendance.find({ regNo: safeRegNo }).lean();
   const summary = summarizeRecords(records);
 
   await User.findOneAndUpdate(
-    { regimentalNo: regNo },
+    { regimentalNo: safeRegNo },
     { attendance: summary.percentage }
   );
 }
@@ -146,8 +156,10 @@ router.post("/mark", authMiddleware, async (req, res) => {
       return;
     }
 
-    const { regNo, date, status, remarks } = req.body;
-    const normalizedStatus = normalizeStatus(status);
+    const regNo = toSafeString(req.body.regNo, 50).toUpperCase();
+    const date = toSafeString(req.body.date, 30);
+    const remarks = toSafeString(req.body.remarks, 255);
+    const normalizedStatus = normalizeStatus(req.body.status);
 
     if (!regNo || !date || !normalizedStatus) {
       return res.status(400).json({ message: "regNo, date and valid status are required." });

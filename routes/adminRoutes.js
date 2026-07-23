@@ -18,24 +18,31 @@ function ensureAdmin(req, res) {
   return true;
 }
 
+function toSafeString(val, maxLen = 255) {
+  if (typeof val !== "string") return "";
+  return val.trim().slice(0, maxLen);
+}
+
 function buildStudentFilter({ year, status }) {
   const query = { role: "student" };
+  const safeYear = toSafeString(year, 20);
+  const safeStatus = toSafeString(status, 20);
 
-  if (year === "passout") {
+  if (safeYear === "passout") {
     query.isPassout = true;
-    if (!status || status === "all") {
+    if (!safeStatus || safeStatus === "all") {
       query.status = "passout";
     }
-  } else if (year) {
-    const numericYear = Number(year);
+  } else if (safeYear) {
+    const numericYear = Number(safeYear);
     if (Number.isInteger(numericYear) && numericYear >= 1 && numericYear <= 3) {
       query.year = numericYear;
       query.isPassout = false;
     }
   }
 
-  if (status && status !== "all") {
-    query.status = status;
+  if (safeStatus && safeStatus !== "all") {
+    query.status = safeStatus;
   }
 
   return query;
@@ -172,14 +179,23 @@ router.post("/students", authMiddleware, async (req, res) => {
       return;
     }
 
-    const { regimentalNo, name, fatherName, dob, email, password } = req.body;
+    const regimentalNo = toSafeString(req.body.regimentalNo, 50).toUpperCase();
+    const name = toSafeString(req.body.name, 100);
+    const fatherName = toSafeString(req.body.fatherName, 100);
+    const dob = toSafeString(req.body.dob, 30);
+    const email = toSafeString(req.body.email, 150).toLowerCase();
+    const password = req.body.password;
 
     if (!regimentalNo || !name || !fatherName || !dob || !email || !password) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    if (typeof password !== "string" || password.length < 6 || password.length > 72) {
+      return res.status(400).json({ message: "Password must be between 6 and 72 characters." });
+    }
+
     const existingUser = await User.findOne({
-      $or: [{ regimentalNo: regimentalNo.toUpperCase() }, { email: email.toLowerCase() }]
+      $or: [{ regimentalNo }, { email }]
     });
 
     if (existingUser) {
@@ -231,11 +247,16 @@ router.put("/students/:id", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Student not found." });
     }
 
-    const { regimentalNo, name, fatherName, dob, email, status } = req.body;
+    const regimentalNo = toSafeString(req.body.regimentalNo, 50).toUpperCase();
+    const name = toSafeString(req.body.name, 100);
+    const fatherName = toSafeString(req.body.fatherName, 100);
+    const dob = toSafeString(req.body.dob, 30);
+    const email = toSafeString(req.body.email, 150).toLowerCase();
+    const status = toSafeString(req.body.status, 20);
 
     if (email && email !== student.email) {
       const emailOwner = await User.findOne({
-        email: email.toLowerCase(),
+        email,
         _id: { $ne: student._id }
       });
 
@@ -246,7 +267,7 @@ router.put("/students/:id", authMiddleware, async (req, res) => {
 
     if (regimentalNo && regimentalNo !== student.regimentalNo) {
       const regOwner = await User.findOne({
-        regimentalNo: regimentalNo.toUpperCase(),
+        regimentalNo,
         _id: { $ne: student._id }
       });
 

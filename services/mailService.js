@@ -28,9 +28,21 @@ function createTransporter() {
   });
 }
 
+function escapeHtml(str) {
+  if (typeof str !== "string") return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   const transporter = createTransporter();
   const fromAddress = process.env.MAIL_FROM || process.env.MAIL_USER;
+  const safeName = escapeHtml(studentName || "Cadet");
+  const safeOtp = escapeHtml(String(otp || ""));
 
   try {
     // Verify SMTP connection before sending to get early, clear errors in logs
@@ -62,9 +74,9 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
       html: `
       <div style="font-family:Segoe UI,Arial,sans-serif;color:#15314f;line-height:1.6">
         <h2 style="margin-bottom:8px">NCC Portal Password Reset</h2>
-        <p>Hello ${studentName || "Cadet"},</p>
+        <p>Hello ${safeName},</p>
         <p>Your OTP for password reset is:</p>
-        <div style="display:inline-block;padding:12px 18px;background:#edf4ff;border-radius:12px;font-size:28px;font-weight:800;letter-spacing:0.2em;color:#0f62d6">${otp}</div>
+        <div style="display:inline-block;padding:12px 18px;background:#edf4ff;border-radius:12px;font-size:28px;font-weight:800;letter-spacing:0.2em;color:#0f62d6">${safeOtp}</div>
         <p style="margin-top:16px">This OTP is valid for 10 minutes.</p>
         <p>If you did not request this reset, you can safely ignore this email.</p>
       </div>
