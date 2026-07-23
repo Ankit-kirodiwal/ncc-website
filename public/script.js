@@ -434,8 +434,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Auth / role-based UI
-  const token = localStorage.getItem("token");
-  const userData = localStorage.getItem("user");
+  const token = getAuthToken();
+  const userData = getRawAuthUser();
 
   const userBar = document.getElementById("userBar");
   const welcomeUser = document.getElementById("welcomeUser");
@@ -501,9 +501,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtnMobile) logoutBtnMobile.classList.remove("hidden");
   
   function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-    window.location.href = "index.html";
+    clearAuthAndRedirect("");
   }
   if (logoutBtnDesktop) logoutBtnDesktop.addEventListener("click", handleLogout);
   if (logoutBtnMobile) logoutBtnMobile.addEventListener("click", handleLogout);
@@ -578,7 +576,7 @@ async function loadPendingStudents(token) {
 }
 
 async function approveStudent(studentId) {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   try {
     const res = await fetch(`${API_BASE}/admin/approve/${studentId}`, {
@@ -652,7 +650,7 @@ async function loadStudentNotes(token) {
 }
 
 async function deleteNote(noteId) {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   if (!confirm("Are you sure you want to delete this note?")) return;
 
@@ -684,7 +682,7 @@ function setupAddNoteForm() {
   addNoteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token = getAuthToken();
     const noteFile = document.getElementById("noteFile").files[0];
 
     if (!noteFile) {
@@ -780,7 +778,7 @@ async function loadAllStudents(token) {
 }
 
 async function deleteStudent(studentId) {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   if (!confirm("Are you sure you want to delete this student?")) return;
 
@@ -805,7 +803,7 @@ async function deleteStudent(studentId) {
 
 
 async function updateAttendance(studentId) {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
   const input = document.getElementById(`attendance-${studentId}`);
   const attendanceValue = Number(input.value);
 
@@ -854,14 +852,14 @@ async function loadStudentProfile(token) {
     }
 
     studentAttendance.textContent = user.attendance ?? 0;
-    localStorage.setItem("user", JSON.stringify(user));
+    sessionStorage.setItem("user", JSON.stringify(user));
   } catch (error) {
     studentAttendance.textContent = "Error";
   }
 }
 
 async function loadMyAttendance() {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
 
   const res = await fetch("/api/attendance/my-attendance", {
     headers: {
@@ -1334,7 +1332,7 @@ function startEditContentItem(itemId) {
 }
 
 async function deleteContentItem(itemId) {
-  const token = localStorage.getItem("token");
+  const token = getAuthToken();
   if (!token) {
     return;
   }
