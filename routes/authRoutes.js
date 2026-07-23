@@ -275,7 +275,7 @@ router.post("/login", async (req, res) => {
     });
 
     const targetRole = user?.role === "admin" ? "admin" : "student";
-    const clientIp = req.ip || req.headers["x-forwarded-for"] || "ip";
+    const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip || "127.0.0.1";
 
     const rateLimitResult = checkLoginRateLimit(clientIp, normalizedLoginId, targetRole);
     if (!rateLimitResult.allowed) {

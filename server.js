@@ -23,25 +23,11 @@ process.on("unhandledRejection", (reason, promise) => {
 
 const app = express();
 
-// ==================== SECURITY HEADERS & RATE LIMITING ====================
+// Enable trust proxy so Render/cloud reverse proxies pass the real client IP
+app.set("trust proxy", 1);
+
+// ==================== SECURITY HEADERS ====================
 app.use(helmet({ contentSecurityPolicy: false }));
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit each IP to 30 requests per window for auth routes
-  message: { message: "Too many authentication requests, please try again after 15 minutes." },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500, // 500 requests per 15 minutes
-  standardHeaders: true,
-  legacyHeaders: false
-});
-
-app.use(generalLimiter);
 
 // ==================== CORS CONFIGURATION ====================
 const corsOptions = {
@@ -52,15 +38,27 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// ==================== MIDDLEWARE ====================
+// ==================== MIDDLEWARE & STATIC FILES ====================
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
-// Serve frontend files
+// Serve frontend static files freely (HTML, CSS, JS, images never rate limited)
 app.use(express.static(path.join(__dirname, "public")));
 
+// ==================== API RATE LIMITER ====================
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 2000, // 2000 API calls per 15 mins per IP
+  message: { message: "Too many API requests from this IP, please try again after 15 minutes." },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// Apply API rate limiter ONLY to API endpoints
+app.use("/api", apiLimiter);
+
 // ==================== API ROUTES ====================
-app.use("/api/auth", authLimiter, authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/notes", noteRoutes);
