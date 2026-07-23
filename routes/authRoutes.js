@@ -298,10 +298,14 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    user.tokenVersion = (user.tokenVersion || 0) + 1;
+    await user.save();
+
     const token = jwt.sign(
       {
         userId: user._id,
         role: user.role,
+        tokenVersion: user.tokenVersion,
         name: user.name,
         email: user.email,
         regimentalNo: user.regimentalNo

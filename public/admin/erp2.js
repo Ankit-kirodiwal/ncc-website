@@ -27,12 +27,34 @@ const state = {
   lastBulkHistory: null
 };
 
+function getToken() {
+  return sessionStorage.getItem("token") || localStorage.getItem("token");
+}
+
+function getUser() {
+  try {
+    const raw = sessionStorage.getItem("user") || localStorage.getItem("user");
+    return JSON.parse(raw || "{}");
+  } catch (_) {
+    return {};
+  }
+}
+
+function clearAuthAndRedirect(message = "Session expired or logged in from another device.") {
+  sessionStorage.removeItem("token");
+  sessionStorage.removeItem("user");
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  alert(message);
+  window.location.href = "login.html";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-  const token = localStorage.getItem("token");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const token = getToken();
+  const user = getUser();
 
   if (!token || user.role !== "admin") {
-    window.location.href = "index.html";
+    window.location.href = "login.html";
     return;
   }
 
@@ -78,10 +100,6 @@ function showTab(tabId, event) {
   }
 }
 
-function getToken() {
-  return localStorage.getItem("token");
-}
-
 async function apiRequest(path, options = {}) {
   const config = {
     headers: {
@@ -94,6 +112,18 @@ async function apiRequest(path, options = {}) {
 
   const response = await fetch(`${API_BASE}${path}`, config);
   const contentType = response.headers.get("content-type") || "";
+
+  if (response.status === 401) {
+    let errorMessage = "Session expired or logged into from another device.";
+    if (contentType.includes("application/json")) {
+      try {
+        const errorBody = await response.json();
+        errorMessage = errorBody.message || errorMessage;
+      } catch (_) {}
+    }
+    clearAuthAndRedirect(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   if (options.expectBlob) {
     if (!response.ok) {
