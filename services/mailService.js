@@ -1,9 +1,21 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns");
+const dnsPromises = require("dns").promises;
 
-function customIpv4Lookup(hostname, options, callback) {
-  const cb = typeof options === "function" ? options : callback;
-  return dns.lookup(hostname, { family: 4, all: false }, cb);
+async function resolveIpv4Host(targetHost) {
+  if (!targetHost) return "smtp.gmail.com";
+  if (/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(targetHost)) {
+    return targetHost;
+  }
+  try {
+    const addresses = await dnsPromises.resolve4(targetHost);
+    if (addresses && addresses.length > 0) {
+      console.log(`Resolved ${targetHost} to IPv4 address: ${addresses[0]}`);
+      return addresses[0];
+    }
+  } catch (err) {
+    console.warn(`DNS resolve4 failed for ${targetHost}:`, err.message);
+  }
+  return targetHost;
 }
 
 function getMailConfigError() {
@@ -14,7 +26,7 @@ function getMailConfigError() {
   return null;
 }
 
-function createTransporter(overrideConfig = {}) {
+async function createTransporter(overrideConfig = {}) {
   const configError = getMailConfigError();
 
   if (configError) {
@@ -25,14 +37,20 @@ function createTransporter(overrideConfig = {}) {
 
   const mailHost = process.env.MAIL_HOST || "smtp.gmail.com";
   const isGmail = mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail";
+  const targetHost = isGmail ? "smtp.gmail.com" : mailHost;
+
+  const resolvedIp = await resolveIpv4Host(targetHost);
 
   let transportOptions = {
+    host: resolvedIp,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
     },
-    lookup: customIpv4Lookup,
-    family: 4,
+    tls: {
+      servername: targetHost,
+      rejectUnauthorized: false
+    },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
@@ -41,12 +59,10 @@ function createTransporter(overrideConfig = {}) {
 
   if (!overrideConfig.host) {
     if (isGmail) {
-      transportOptions.host = "smtp.gmail.com";
       const isPort465 = Number(process.env.MAIL_PORT) === 465 || String(process.env.MAIL_SECURE).toLowerCase() === "true";
       transportOptions.port = isPort465 ? 465 : 587;
       transportOptions.secure = isPort465;
     } else {
-      transportOptions.host = process.env.MAIL_HOST;
       transportOptions.port = Number(process.env.MAIL_PORT) || 587;
       transportOptions.secure = String(process.env.MAIL_SECURE || "").toLowerCase() === "true" || Number(process.env.MAIL_PORT) === 465;
     }
@@ -104,20 +120,18 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   };
 
   try {
-    const primaryTransporter = createTransporter();
+    const primaryTransporter = await createTransporter();
     await sendMailWithTransporter(primaryTransporter, mailOptions);
   } catch (primaryErr) {
     console.warn("Primary mail transport failed, attempting fallback transport...", primaryErr.message || primaryErr);
 
-    // Fallback: If primary transport failed and target host is Gmail, try explicit SSL port 465 or service: 'gmail'
+    // Fallback: If primary transport failed and target host is Gmail, try explicit SSL port 465
     const mailHost = process.env.MAIL_HOST || "";
     if (mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail") {
       try {
-        const fallbackTransporter = createTransporter({
-          host: "smtp.gmail.com",
+        const fallbackTransporter = await createTransporter({
           port: 465,
-          secure: true,
-          service: undefined
+          secure: true
         });
         await sendMailWithTransporter(fallbackTransporter, mailOptions);
         return;
