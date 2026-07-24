@@ -179,8 +179,11 @@ router.post("/register", async (req, res) => {
 router.post("/forgot-password/request-otp", async (req, res) => {
   try {
     const body = req.body || {};
-    const normalizedLoginId = sanitizeString(body.loginId, 150);
-    const normalizedDob = formatDateOnly(body.dob);
+    const rawLoginId = body.loginId || body.email || body.regimentalNo || "";
+    const rawDob = body.dob || body.dateOfBirth || "";
+
+    const normalizedLoginId = sanitizeString(String(rawLoginId || ""), 150);
+    const normalizedDob = formatDateOnly(rawDob);
     const mailConfigError = getMailConfigError();
 
     if (mailConfigError) {

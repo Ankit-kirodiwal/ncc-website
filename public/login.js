@@ -116,8 +116,11 @@ forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
 forgotPasswordCancel.addEventListener("click", closeForgotPasswordPanel);
 
 async function handleSendOtp() {
-  const loginId = forgotLoginIdInput.value.trim();
-  const dob = forgotDobInput.value;
+  const loginIdInput = document.getElementById("forgotLoginId") || document.getElementById("studentLoginId");
+  const dobInput = document.getElementById("forgotDob");
+
+  const loginId = (loginIdInput ? loginIdInput.value : "").trim();
+  const dob = dobInput ? dobInput.value : "";
 
   if (!loginId || !dob) {
     showMessage("Enter email or regimental no and date of birth first.", "red");
@@ -133,7 +136,7 @@ async function handleSendOtp() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ loginId, dob })
+      body: JSON.stringify({ loginId, email: loginId, dob })
     });
 
     const result = await res.json();
