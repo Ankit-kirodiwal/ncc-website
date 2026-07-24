@@ -190,8 +190,11 @@ router.post("/forgot-password/request-otp", async (req, res) => {
       return res.status(500).json({ message: mailConfigError });
     }
 
+    console.log("POST /forgot-password/request-otp received body:", body);
+
     if (!normalizedLoginId) {
-      return res.status(400).json({ message: "Login ID (email or regimental number) is required." });
+      const keys = Object.keys(body).join(", ") || "none";
+      return res.status(400).json({ message: `Login ID (email or regimental number) is required. (Received payload keys: ${keys})` });
     }
 
     if (!normalizedDob) {

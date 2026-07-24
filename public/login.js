@@ -116,16 +116,21 @@ forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
 forgotPasswordCancel.addEventListener("click", closeForgotPasswordPanel);
 
 async function handleSendOtp() {
-  const loginIdInput = document.getElementById("forgotLoginId") || document.getElementById("studentLoginId");
-  const dobInput = document.getElementById("forgotDob");
+  const forgotVal = (document.getElementById("forgotLoginId")?.value || "").trim();
+  const studentVal = (document.getElementById("studentLoginId")?.value || "").trim();
+  const loginId = forgotVal || studentVal;
 
-  const loginId = (loginIdInput ? loginIdInput.value : "").trim();
+  const dobInput = document.getElementById("forgotDob");
   const dob = dobInput ? dobInput.value : "";
 
   if (!loginId || !dob) {
     showMessage("Enter email or regimental no and date of birth first.", "red");
     return;
   }
+
+  // Synchronize both inputs
+  const forgotLoginIdElem = document.getElementById("forgotLoginId");
+  if (forgotLoginIdElem) forgotLoginIdElem.value = loginId;
 
   sendOtpBtn.disabled = true;
   sendOtpBtn.textContent = "Sending OTP...";
@@ -136,7 +141,7 @@ async function handleSendOtp() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ loginId, email: loginId, dob })
+      body: JSON.stringify({ loginId, email: loginId, regimentalNo: loginId, dob })
     });
 
     const result = await res.json();
