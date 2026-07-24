@@ -930,7 +930,7 @@ function displayStudentAttendanceHistory(data) {
   }
 
   let html = `
-    <h3 style="margin-bottom: 20px; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
+    <h3 style="margin-bottom: 20px;  color: #333; border-bottom: 2px solid #007bff; padding-bottom: 10px;">
       Your Attendance History
     </h3>
 

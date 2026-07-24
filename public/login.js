@@ -8,7 +8,17 @@ const forgotLoginIdInput = document.getElementById("forgotLoginId");
 const forgotDobInput = document.getElementById("forgotDob");
 const forgotOtpStatus = document.getElementById("forgotOtpStatus");
 const sendOtpBtn = document.getElementById("sendOtpBtn");
+const forgotStep1 = document.getElementById("forgotStep1");
+const forgotStep2 = document.getElementById("forgotStep2");
+const forgotStep3 = document.getElementById("forgotStep3");
+const forgotInstruction = document.getElementById("forgotInstruction");
+const forgotOtpInput = document.getElementById("forgotOtp");
+const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+const resendOtpBtn = document.getElementById("resendOtpBtn");
+const changeDetailsBtn = document.getElementById("changeDetailsBtn");
+
 let forgotOtpRequested = false;
+let forgotOtpVerified = false;
 
 function showTab(tabId) {
   document.querySelectorAll(".form-section").forEach((section) => {
@@ -45,27 +55,57 @@ function togglePassword(inputId) {
   passwordInput.type = passwordInput.type === "password" ? "text" : "password";
 }
 
-function openForgotPasswordPanel() {
-  forgotPasswordPanel.hidden = false;
-  forgotLoginIdInput.value = studentLoginIdInput.value.trim();
+function resetForgotPasswordSteps() {
+  forgotStep1.hidden = false;
+  forgotStep2.hidden = true;
+  forgotStep3.hidden = true;
+  
+  forgotLoginIdInput.disabled = false;
+  forgotDobInput.disabled = false;
+  sendOtpBtn.style.display = "block";
+  sendOtpBtn.disabled = false;
+  sendOtpBtn.textContent = "Send OTP";
+
+  if (forgotOtpInput) {
+    forgotOtpInput.value = "";
+    forgotOtpInput.disabled = false;
+  }
+  if (verifyOtpBtn) {
+    verifyOtpBtn.disabled = false;
+    verifyOtpBtn.textContent = "Verify OTP";
+  }
+
+  document.getElementById("forgotNewPassword").value = "";
+  document.getElementById("forgotConfirmPassword").value = "";
+
   forgotOtpRequested = false;
+  forgotOtpVerified = false;
+
   forgotOtpStatus.hidden = true;
   forgotOtpStatus.textContent = "";
-  showMessage("Enter your details and request an OTP.", "#0f62d6");
+
+  if (forgotInstruction) {
+    forgotInstruction.textContent = "Confirm your details (Email/Regimental No and Date of Birth) to request an OTP.";
+  }
+}
+
+function openForgotPasswordPanel() {
+  forgotPasswordPanel.hidden = false;
+  resetForgotPasswordSteps();
+  forgotLoginIdInput.value = studentLoginIdInput.value.trim();
+  showMessage("Confirm your details to request an OTP.", "#0f62d6");
 }
 
 function closeForgotPasswordPanel() {
   forgotPasswordPanel.hidden = true;
   document.getElementById("forgotPasswordForm").reset();
-  forgotOtpRequested = false;
-  forgotOtpStatus.hidden = true;
-  forgotOtpStatus.textContent = "";
+  resetForgotPasswordSteps();
 }
 
 forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
 forgotPasswordCancel.addEventListener("click", closeForgotPasswordPanel);
 
-sendOtpBtn.addEventListener("click", async () => {
+async function handleSendOtp() {
   const loginId = forgotLoginIdInput.value.trim();
   const dob = forgotDobInput.value;
 
@@ -94,6 +134,15 @@ sendOtpBtn.addEventListener("click", async () => {
     }
 
     forgotOtpRequested = true;
+    forgotLoginIdInput.disabled = true;
+    forgotDobInput.disabled = true;
+    sendOtpBtn.style.display = "none";
+
+    forgotStep2.hidden = false;
+    if (forgotInstruction) {
+      forgotInstruction.textContent = "Enter the 6-digit OTP sent to your registered email.";
+    }
+
     forgotOtpStatus.hidden = false;
     forgotOtpStatus.textContent = `OTP sent to ${result.maskedEmail || "your registered email"}.`;
     showMessage(result.message || "OTP sent successfully.", "green");
@@ -103,7 +152,92 @@ sendOtpBtn.addEventListener("click", async () => {
     sendOtpBtn.disabled = false;
     sendOtpBtn.textContent = "Send OTP";
   }
-});
+}
+
+sendOtpBtn.addEventListener("click", handleSendOtp);
+
+if (resendOtpBtn) {
+  resendOtpBtn.addEventListener("click", handleSendOtp);
+}
+
+if (changeDetailsBtn) {
+  changeDetailsBtn.addEventListener("click", () => {
+    forgotLoginIdInput.disabled = false;
+    forgotDobInput.disabled = false;
+    sendOtpBtn.style.display = "block";
+    forgotStep2.hidden = true;
+    forgotStep3.hidden = true;
+    forgotOtpRequested = false;
+    forgotOtpVerified = false;
+    forgotOtpStatus.hidden = true;
+    if (forgotInstruction) {
+      forgotInstruction.textContent = "Confirm your details (Email/Regimental No and Date of Birth) to request an OTP.";
+    }
+  });
+}
+
+if (verifyOtpBtn) {
+  verifyOtpBtn.addEventListener("click", async () => {
+    const loginId = forgotLoginIdInput.value.trim();
+    const dob = forgotDobInput.value;
+    const otp = forgotOtpInput.value.trim();
+
+    if (!loginId || !dob) {
+      showMessage("Please confirm your details first.", "red");
+      return;
+    }
+
+    if (!forgotOtpRequested) {
+      showMessage("Please request OTP first.", "red");
+      return;
+    }
+
+    if (otp.length !== 6) {
+      showMessage("Enter valid 6-digit OTP.", "red");
+      return;
+    }
+
+    verifyOtpBtn.disabled = true;
+    verifyOtpBtn.textContent = "Verifying...";
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/forgot-password/verify-otp-only`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ loginId, dob, otp })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        showMessage(result.message || "Invalid OTP.", "red");
+        verifyOtpBtn.disabled = false;
+        verifyOtpBtn.textContent = "Verify OTP";
+        return;
+      }
+
+      forgotOtpVerified = true;
+      forgotOtpInput.disabled = true;
+      verifyOtpBtn.disabled = true;
+      verifyOtpBtn.textContent = "Verified ✓";
+
+      forgotStep3.hidden = false;
+      if (forgotInstruction) {
+        forgotInstruction.textContent = "OTP verified! Please set your new password.";
+      }
+
+      forgotOtpStatus.hidden = false;
+      forgotOtpStatus.textContent = "✓ OTP Verified successfully.";
+      showMessage("OTP verified successfully. Please enter your new password.", "green");
+    } catch (error) {
+      showMessage("Something went wrong during OTP verification", "red");
+      verifyOtpBtn.disabled = false;
+      verifyOtpBtn.textContent = "Verify OTP";
+    }
+  });
+}
 
 document.getElementById("studentRegisterForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -188,6 +322,16 @@ document.getElementById("forgotPasswordForm").addEventListener("submit", async (
     return;
   }
 
+  if (!forgotOtpVerified) {
+    showMessage("Please click 'Verify OTP' to verify your OTP first.", "red");
+    return;
+  }
+
+  if (!newPassword || !confirmPassword) {
+    showMessage("Please enter your new password.", "red");
+    return;
+  }
+
   if (newPassword !== confirmPassword) {
     showMessage("New password and confirm password must match.", "red");
     return;
@@ -196,6 +340,12 @@ document.getElementById("forgotPasswordForm").addEventListener("submit", async (
   if (newPassword.length < 6) {
     showMessage("New password must be at least 6 characters.", "red");
     return;
+  }
+
+  const resetBtn = document.getElementById("resetPasswordSubmitBtn");
+  if (resetBtn) {
+    resetBtn.disabled = true;
+    resetBtn.textContent = "Resetting Password...";
   }
 
   try {
@@ -216,14 +366,22 @@ document.getElementById("forgotPasswordForm").addEventListener("submit", async (
 
     if (!res.ok) {
       showMessage(result.message || "Unable to reset password.", "red");
+      if (resetBtn) {
+        resetBtn.disabled = false;
+        resetBtn.textContent = "Reset Password";
+      }
       return;
     }
 
     studentLoginIdInput.value = loginId;
     closeForgotPasswordPanel();
-    showMessage(result.message || "Password reset successful. Please log in.", "green");
+    showMessage(result.message || "Password reset successful. Please log in with your new password.", "green");
   } catch (error) {
     showMessage("Something went wrong during password reset", "red");
+    if (resetBtn) {
+      resetBtn.disabled = false;
+      resetBtn.textContent = "Reset Password";
+    }
   }
 });
 

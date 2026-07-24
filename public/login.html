@@ -229,26 +229,44 @@
 
       <div id="forgotPasswordPanel" class="forgot-panel" hidden>
         <h3>Reset Student Password</h3>
-        <p>Enter your email or regimental number, verify your date of birth, then we will send an OTP to your registered email.</p>
+        <p id="forgotInstruction">Enter your Email or Regimental Number and Date of Birth to confirm your details.</p>
         <form id="forgotPasswordForm">
-          <input type="text" id="forgotLoginId" placeholder="Email or Regimental No" required />
-          <input type="date" id="forgotDob" required />
-          <div id="forgotOtpStatus" class="forgot-status" hidden></div>
-          <div class="forgot-grid">
-            <button type="button" id="sendOtpBtn">Send OTP</button>
-            <input type="text" id="forgotOtp" placeholder="Enter 6-digit OTP" inputmode="numeric" minlength="6" maxlength="6" required />
+          <!-- Step 1: Details confirmation -->
+          <div id="forgotStep1">
+            <input type="text" id="forgotLoginId" placeholder="Email or Regimental No" required />
+            <input type="date" id="forgotDob" style="margin-top: 10px;" required />
+            <button type="button" id="sendOtpBtn" style="margin-top: 12px; width: 100%;">Send OTP</button>
           </div>
-          <div class="password-field">
-            <input type="password" id="forgotNewPassword" placeholder="New Password" required minlength="6" />
-            <button type="button" class="password-toggle" onclick="togglePassword('forgotNewPassword')">Show</button>
+
+          <div id="forgotOtpStatus" class="forgot-status" style="margin-top: 10px;" hidden></div>
+
+          <!-- Step 2: OTP Verification -->
+          <div id="forgotStep2" style="margin-top: 12px;" hidden>
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px;">
+              <input type="text" id="forgotOtp" placeholder="Enter 6-digit OTP" inputmode="numeric" minlength="6" maxlength="6" />
+              <button type="button" id="verifyOtpBtn">Verify OTP</button>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+              <button type="button" class="inline-link" id="resendOtpBtn">Resend OTP</button>
+              <button type="button" class="inline-link" id="changeDetailsBtn">Edit Details</button>
+            </div>
           </div>
-          <div class="password-field">
-            <input type="password" id="forgotConfirmPassword" placeholder="Confirm New Password" required minlength="6" />
-            <button type="button" class="password-toggle" onclick="togglePassword('forgotConfirmPassword')">Show</button>
+
+          <!-- Step 3: Set New Password -->
+          <div id="forgotStep3" style="margin-top: 12px;" hidden>
+            <div class="password-field">
+              <input type="password" id="forgotNewPassword" placeholder="New Password" minlength="6" />
+              <button type="button" class="password-toggle" onclick="togglePassword('forgotNewPassword')">Show</button>
+            </div>
+            <div class="password-field" style="margin-top: 10px;">
+              <input type="password" id="forgotConfirmPassword" placeholder="Confirm New Password" minlength="6" />
+              <button type="button" class="password-toggle" onclick="togglePassword('forgotConfirmPassword')">Show</button>
+            </div>
+            <button type="submit" id="resetPasswordSubmitBtn" style="margin-top: 12px; width: 100%;">Reset Password</button>
           </div>
-          <div class="forgot-actions">
-            <button type="submit">Reset Password</button>
-            <button type="button" class="secondary-btn" id="forgotPasswordCancel">Cancel</button>
+
+          <div class="forgot-actions" style="margin-top: 14px;">
+            <button type="button" class="secondary-btn" id="forgotPasswordCancel" style="width: 100%;">Cancel</button>
           </div>
         </form>
       </div>

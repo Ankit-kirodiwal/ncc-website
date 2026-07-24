@@ -196,6 +196,54 @@ router.post("/forgot-password/request-otp", async (req, res) => {
   }
 });
 
+// Verify OTP only (Step 2 of Forgot Password)
+router.post("/forgot-password/verify-otp-only", async (req, res) => {
+  try {
+    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
+    const normalizedDob = formatDateOnly(req.body.dob);
+    const normalizedOtp = sanitizeString(String(req.body.otp || ""), 10);
+
+    if (!normalizedLoginId || !normalizedDob || !normalizedOtp) {
+      return res.status(400).json({ message: "Login ID, date of birth, and OTP are required." });
+    }
+
+    const user = await User.findOne({
+      role: "student",
+      $or: [{ email: normalizedLoginId.toLowerCase() }, { regimentalNo: normalizedLoginId.toUpperCase() }]
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "Student not found." });
+    }
+
+    const storedDob = formatDateOnly(user.dob);
+    if (storedDob !== normalizedDob) {
+      return res.status(403).json({ message: "Date of birth does not match our records." });
+    }
+
+    if (!user.passwordResetOtpHash || !user.passwordResetOtpExpiresAt) {
+      return res.status(400).json({ message: "Please request a fresh OTP first." });
+    }
+
+    if (user.passwordResetOtpExpiresAt.getTime() < Date.now()) {
+      user.passwordResetOtpHash = null;
+      user.passwordResetOtpExpiresAt = null;
+      await user.save();
+      return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+    }
+
+    const isOtpValid = await bcrypt.compare(normalizedOtp, user.passwordResetOtpHash);
+    if (!isOtpValid) {
+      return res.status(400).json({ message: "Invalid OTP. Please check and try again." });
+    }
+
+    res.status(200).json({ message: "OTP verified successfully." });
+  } catch (error) {
+    console.error("Verify OTP Only Error:", error);
+    res.status(500).json({ message: "Server error during OTP verification" });
+  }
+});
+
 router.post("/forgot-password/verify-otp", async (req, res) => {
   try {
     const normalizedLoginId = sanitizeString(req.body.loginId, 150);
