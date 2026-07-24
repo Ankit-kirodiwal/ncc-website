@@ -143,8 +143,9 @@ router.post("/register", async (req, res) => {
 // Student forgot password OTP request
 router.post("/forgot-password/request-otp", async (req, res) => {
   try {
-    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
-    const normalizedDob = formatDateOnly(req.body.dob);
+    const body = req.body || {};
+    const normalizedLoginId = sanitizeString(body.loginId, 150);
+    const normalizedDob = formatDateOnly(body.dob);
     const mailConfigError = getMailConfigError();
 
     if (mailConfigError) {
@@ -199,9 +200,10 @@ router.post("/forgot-password/request-otp", async (req, res) => {
 // Verify OTP only (Step 2 of Forgot Password)
 router.post("/forgot-password/verify-otp-only", async (req, res) => {
   try {
-    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
-    const normalizedDob = formatDateOnly(req.body.dob);
-    const normalizedOtp = sanitizeString(String(req.body.otp || ""), 10);
+    const body = req.body || {};
+    const normalizedLoginId = sanitizeString(body.loginId, 150);
+    const normalizedDob = formatDateOnly(body.dob);
+    const normalizedOtp = sanitizeString(String(body.otp || ""), 10);
 
     if (!normalizedLoginId || !normalizedDob || !normalizedOtp) {
       return res.status(400).json({ message: "Login ID, date of birth, and OTP are required." });
@@ -246,10 +248,11 @@ router.post("/forgot-password/verify-otp-only", async (req, res) => {
 
 router.post("/forgot-password/verify-otp", async (req, res) => {
   try {
-    const normalizedLoginId = sanitizeString(req.body.loginId, 150);
-    const normalizedDob = formatDateOnly(req.body.dob);
-    const normalizedOtp = sanitizeString(String(req.body.otp || ""), 10);
-    const newPassword = req.body.newPassword;
+    const body = req.body || {};
+    const normalizedLoginId = sanitizeString(body.loginId, 150);
+    const normalizedDob = formatDateOnly(body.dob);
+    const normalizedOtp = sanitizeString(String(body.otp || ""), 10);
+    const newPassword = body.newPassword;
 
     if (!normalizedLoginId || !normalizedDob || !normalizedOtp || !newPassword) {
       return res.status(400).json({ message: "Login ID, date of birth, OTP, and new password are required." });
