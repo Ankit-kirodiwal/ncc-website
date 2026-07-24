@@ -38,10 +38,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Disable ETag generation globally so server never returns 304 Not Modified
+// Disable ETags globally so server never generates 304 Not Modified
 app.disable("etag");
 
-// Middleware to strip conditional headers from incoming requests and disable browser caching
+// Strip conditional request headers and disable caching for ALL requests
 app.use((req, res, next) => {
   delete req.headers["if-none-match"];
   delete req.headers["if-modified-since"];
@@ -51,11 +51,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ==================== MIDDLEWARE & STATIC FILES ====================
-app.use(express.json({ limit: "10kb" }));
-app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-
-// Serve frontend static files without 304 caching (always return 200 OK with fresh content)
+// Serve all frontend static files with 304 completely disabled (always return 200 OK)
 app.use(
   express.static(path.join(__dirname, "public"), {
     etag: false,
