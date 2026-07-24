@@ -1,4 +1,10 @@
 const nodemailer = require("nodemailer");
+const dns = require("dns");
+
+function customIpv4Lookup(hostname, options, callback) {
+  const cb = typeof options === "function" ? options : callback;
+  return dns.lookup(hostname, { family: 4, all: false }, cb);
+}
 
 function getMailConfigError() {
   if (!process.env.MAIL_HOST || !process.env.MAIL_PORT || !process.env.MAIL_USER || !(process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS)) {
@@ -17,7 +23,7 @@ function createTransporter(overrideConfig = {}) {
     throw error;
   }
 
-  const mailHost = process.env.MAIL_HOST || "";
+  const mailHost = process.env.MAIL_HOST || "smtp.gmail.com";
   const isGmail = mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail";
 
   let transportOptions = {
@@ -25,23 +31,20 @@ function createTransporter(overrideConfig = {}) {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
     },
-    family: 4, // Force IPv4 to fix ENETUNREACH IPv6 errors on cloud servers like Render
+    lookup: customIpv4Lookup,
+    family: 4,
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
     ...overrideConfig
   };
 
-  if (!overrideConfig.host && !overrideConfig.service) {
+  if (!overrideConfig.host) {
     if (isGmail) {
-      // For Gmail on cloud environments like Render, SSL port 465 or service:'gmail' avoids port 587 blocking
-      if (Number(process.env.MAIL_PORT) === 465 || String(process.env.MAIL_SECURE).toLowerCase() === "true") {
-        transportOptions.host = "smtp.gmail.com";
-        transportOptions.port = 465;
-        transportOptions.secure = true;
-      } else {
-        transportOptions.service = "gmail";
-      }
+      transportOptions.host = "smtp.gmail.com";
+      const isPort465 = Number(process.env.MAIL_PORT) === 465 || String(process.env.MAIL_SECURE).toLowerCase() === "true";
+      transportOptions.port = isPort465 ? 465 : 587;
+      transportOptions.secure = isPort465;
     } else {
       transportOptions.host = process.env.MAIL_HOST;
       transportOptions.port = Number(process.env.MAIL_PORT) || 587;
