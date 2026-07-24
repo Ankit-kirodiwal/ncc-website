@@ -9,13 +9,48 @@ const { getMailConfigError, sendPasswordResetOtp } = require("../services/mailSe
 const router = express.Router();
 
 function formatDateOnly(dateValue) {
+  if (!dateValue) return null;
+
+  if (typeof dateValue === "string") {
+    const trimmed = dateValue.trim();
+    // Standard YYYY-MM-DD
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      return trimmed;
+    }
+    // Match YYYY-MM-DDTHH:mm:ss...
+    if (/^\d{4}-\d{2}-\d{2}T/.test(trimmed)) {
+      return trimmed.slice(0, 10);
+    }
+    // Match MM/DD/YYYY or DD/MM/YYYY
+    const parts = trimmed.split(/[\/\.-]/);
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        return `${parts[0]}-${parts[1].padStart(2, "0")}-${parts[2].padStart(2, "0")}`;
+      }
+      if (parts[2].length === 4) {
+        // Assume MM/DD/YYYY or DD/MM/YYYY
+        const y = parts[2];
+        const p1 = Number(parts[0]);
+        const p2 = Number(parts[1]);
+        if (p1 <= 12) {
+          return `${y}-${String(p1).padStart(2, "0")}-${String(p2).padStart(2, "0")}`;
+        }
+        return `${y}-${String(p2).padStart(2, "0")}-${String(p1).padStart(2, "0")}`;
+      }
+    }
+  }
+
   const date = new Date(dateValue);
 
   if (Number.isNaN(date.getTime())) {
     return null;
   }
 
-  return date.toISOString().slice(0, 10);
+  try {
+    return date.toISOString().slice(0, 10);
+  } catch (e) {
+    return null;
+  }
 }
 
 function maskEmail(email) {
