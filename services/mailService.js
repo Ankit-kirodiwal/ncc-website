@@ -41,8 +41,21 @@ async function createTransporter(overrideConfig = {}) {
 
   const resolvedIp = await resolveIpv4Host(targetHost);
 
+  let port = 465;
+  let secure = true;
+
+  if (overrideConfig.port !== undefined) {
+    port = overrideConfig.port;
+    secure = overrideConfig.secure !== undefined ? overrideConfig.secure : (port === 465);
+  } else if (!isGmail && process.env.MAIL_PORT) {
+    port = Number(process.env.MAIL_PORT);
+    secure = String(process.env.MAIL_SECURE).toLowerCase() === "true" || port === 465;
+  }
+
   let transportOptions = {
     host: resolvedIp,
+    port: port,
+    secure: secure,
     auth: {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
@@ -56,17 +69,6 @@ async function createTransporter(overrideConfig = {}) {
     socketTimeout: 15000,
     ...overrideConfig
   };
-
-  if (!overrideConfig.host) {
-    if (isGmail) {
-      const isPort465 = Number(process.env.MAIL_PORT) === 465 || String(process.env.MAIL_SECURE).toLowerCase() === "true";
-      transportOptions.port = isPort465 ? 465 : 587;
-      transportOptions.secure = isPort465;
-    } else {
-      transportOptions.port = Number(process.env.MAIL_PORT) || 587;
-      transportOptions.secure = String(process.env.MAIL_SECURE || "").toLowerCase() === "true" || Number(process.env.MAIL_PORT) === 465;
-    }
-  }
 
   return nodemailer.createTransport(transportOptions);
 }
@@ -119,34 +121,44 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   `
   };
 
+  // Attempt 1: Port 465 SSL (IPv4 direct)
   try {
-    const primaryTransporter = await createTransporter();
+    const primaryTransporter = await createTransporter({ port: 465, secure: true });
     await sendMailWithTransporter(primaryTransporter, mailOptions);
+    return;
   } catch (primaryErr) {
-    console.warn("Primary mail transport failed, attempting fallback transport...", primaryErr.message || primaryErr);
+    console.warn("Port 465 SSL transport failed, trying Port 587 STARTTLS...", primaryErr.message || primaryErr);
+  }
 
-    // Fallback: If primary transport failed and target host is Gmail, try explicit SSL port 465
-    const mailHost = process.env.MAIL_HOST || "";
-    if (mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail") {
-      try {
-        const fallbackTransporter = await createTransporter({
-          port: 465,
-          secure: true
-        });
-        await sendMailWithTransporter(fallbackTransporter, mailOptions);
-        return;
-      } catch (fallbackErr) {
-        console.error("Fallback mail transport also failed:", fallbackErr.message || fallbackErr);
-      }
-    }
+  // Attempt 2: Port 587 STARTTLS (IPv4 direct)
+  try {
+    const fallbackTransporter587 = await createTransporter({ port: 587, secure: false });
+    await sendMailWithTransporter(fallbackTransporter587, mailOptions);
+    return;
+  } catch (err587) {
+    console.warn("Port 587 transport failed, trying Nodemailer service:'gmail'...", err587.message || err587);
+  }
 
-    if (primaryErr && primaryErr.code === "EAUTH") {
-      const authError = new Error("Gmail rejected the SMTP login. Use a Google App Password for MAIL_PASS (or MAIL_APP_PASSWORD/GMAIL_APP_PASSWORD) and keep 2-Step Verification enabled on the Gmail account.");
-      authError.code = primaryErr.code;
+  // Attempt 3: Nodemailer standard Gmail service
+  try {
+    const gmailTransporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
+      },
+      connectionTimeout: 10000
+    });
+    await sendMailWithTransporter(gmailTransporter, mailOptions);
+    return;
+  } catch (gmailErr) {
+    console.error("All mail transports failed:", gmailErr.message || gmailErr);
+    if (gmailErr && gmailErr.code === "EAUTH") {
+      const authError = new Error("Gmail rejected the SMTP login. Use a Google App Password for MAIL_PASS and keep 2-Step Verification enabled.");
+      authError.code = gmailErr.code;
       throw authError;
     }
-
-    throw primaryErr;
+    throw gmailErr;
   }
 }
 
