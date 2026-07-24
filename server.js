@@ -38,6 +38,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// ==================== BODY PARSER MIDDLEWARE ====================
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 // Disable ETags globally so server never generates 304 Not Modified
 app.disable("etag");
 
