@@ -22,6 +22,7 @@ let forgotOtpVerified = false;
 
 function showTab(tabId) {
   closeForgotPasswordPanel();
+  showMessage("", "green");
 
   document.querySelectorAll(".form-section").forEach((section) => {
     section.classList.remove("active");
@@ -99,7 +100,7 @@ function openForgotPasswordPanel() {
   forgotPasswordPanel.hidden = false;
   resetForgotPasswordSteps();
   forgotLoginIdInput.value = studentLoginIdInput.value.trim();
-  showMessage("Confirm your details to request an OTP.", "#0f62d6");
+  showMessage("", "green");
 }
 
 function closeForgotPasswordPanel() {
@@ -108,6 +109,7 @@ function closeForgotPasswordPanel() {
   if (forgotPasswordToggle) forgotPasswordToggle.hidden = false;
   document.getElementById("forgotPasswordForm").reset();
   resetForgotPasswordSteps();
+  showMessage("", "green");
 }
 
 forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
