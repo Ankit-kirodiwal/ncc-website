@@ -187,8 +187,12 @@ router.post("/forgot-password/request-otp", async (req, res) => {
       return res.status(500).json({ message: mailConfigError });
     }
 
-    if (!normalizedLoginId || !normalizedDob) {
-      return res.status(400).json({ message: "Login ID and date of birth are required." });
+    if (!normalizedLoginId) {
+      return res.status(400).json({ message: "Login ID (email or regimental number) is required." });
+    }
+
+    if (!normalizedDob) {
+      return res.status(400).json({ message: "Please provide a valid date of birth." });
     }
 
     const user = await User.findOne({
@@ -197,10 +201,12 @@ router.post("/forgot-password/request-otp", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ message: "Student not found." });
+      return res.status(404).json({ message: "Student not found with provided Email/Regimental No." });
     }
 
     const storedDob = formatDateOnly(user.dob);
+    console.log("OTP Request DOB check:", { inputDob: normalizedDob, storedDob });
+
     if (storedDob !== normalizedDob) {
       return res.status(403).json({ message: "Date of birth does not match our records." });
     }
