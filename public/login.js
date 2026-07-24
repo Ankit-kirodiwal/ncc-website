@@ -21,6 +21,8 @@ let forgotOtpRequested = false;
 let forgotOtpVerified = false;
 
 function showTab(tabId) {
+  closeForgotPasswordPanel();
+
   document.querySelectorAll(".form-section").forEach((section) => {
     section.classList.remove("active");
   });
@@ -89,7 +91,11 @@ function resetForgotPasswordSteps() {
   }
 }
 
+const studentLoginForm = document.getElementById("studentLoginForm");
+
 function openForgotPasswordPanel() {
+  if (studentLoginForm) studentLoginForm.hidden = true;
+  if (forgotPasswordToggle) forgotPasswordToggle.hidden = true;
   forgotPasswordPanel.hidden = false;
   resetForgotPasswordSteps();
   forgotLoginIdInput.value = studentLoginIdInput.value.trim();
@@ -98,6 +104,8 @@ function openForgotPasswordPanel() {
 
 function closeForgotPasswordPanel() {
   forgotPasswordPanel.hidden = true;
+  if (studentLoginForm) studentLoginForm.hidden = false;
+  if (forgotPasswordToggle) forgotPasswordToggle.hidden = false;
   document.getElementById("forgotPasswordForm").reset();
   resetForgotPasswordSteps();
 }
