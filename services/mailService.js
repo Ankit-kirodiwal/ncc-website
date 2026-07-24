@@ -25,6 +25,7 @@ function createTransporter(overrideConfig = {}) {
       user: process.env.MAIL_USER,
       pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
     },
+    family: 4, // Force IPv4 to fix ENETUNREACH IPv6 errors on cloud servers like Render
     connectionTimeout: 10000,
     greetingTimeout: 10000,
     socketTimeout: 15000,
