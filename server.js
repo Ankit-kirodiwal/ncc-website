@@ -60,17 +60,42 @@ app.use(
 );
 
 // ==================== CORS CONFIGURATION ====================
-const defaultAllowedOrigins = ["https://ncc-project.onrender.com", "http://localhost:5000", "http://localhost:3000"];
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+const defaultAllowedOrigins = [
+  "https://bkbietncc.in",
+  "https://www.bkbietncc.in",
+  "https://ncc-project.onrender.com",
+  "http://localhost:5000",
+  "http://localhost:3000"
+];
+
+const envOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",").map((o) => o.trim())
-  : defaultAllowedOrigins;
+  : [];
+
+const allowedOrigins = [...new Set([...defaultAllowedOrigins, ...envOrigins])];
 
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    const isAllowed = allowedOrigins.some((allowed) => {
+      if (origin === allowed) return true;
+      try {
+        const originHost = new URL(origin).hostname;
+        const allowedHost = new URL(allowed).hostname;
+        if (originHost === allowedHost || originHost.endsWith("." + allowedHost)) {
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error("CORS policy violation: origin not allowed"));
+      callback(new Error(`CORS policy violation: origin ${origin} not allowed`));
     }
   },
   credentials: true,
