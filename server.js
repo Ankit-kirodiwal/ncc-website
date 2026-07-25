@@ -50,6 +50,7 @@ app.use(
       directives: {
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdnjs.cloudflare.com"],
+        scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com", "https://cdn.tailwindcss.com"],
         fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
         imgSrc: ["'self'", "data:", "blob:", "https://res.cloudinary.com"],
@@ -168,13 +169,16 @@ app.use("/api", apiLimiter);
 
 // Apply dedicated rate limiters to specific auth endpoints
 app.use("/api/auth/login", loginLimiter);
+app.use("/api/login", loginLimiter);
 app.use("/api/auth/register", registerLimiter);
+app.use("/api/register", registerLimiter);
 app.use("/api/auth/forgot-password/request-otp", passwordResetLimiter);
 app.use("/api/auth/forgot-password/verify-otp", passwordResetLimiter);
 app.use("/api/auth/forgot-password/verify-otp-only", passwordResetLimiter);
 
 // ==================== API ROUTES ====================
 app.use("/api/auth", authRoutes);
+app.use("/api", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/content", contentRoutes);
 app.use("/api/notes", noteRoutes);
