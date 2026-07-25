@@ -475,7 +475,7 @@ router.post("/bulk-promote", authMiddleware, async (req, res) => {
           });
         }
       } catch (error) {
-        console.error(`Bulk promotion failed for ${student.regimentalNo}:`, error);
+        console.error("Bulk promotion failed for student:", error.message || error);
         failed += 1;
       }
     }
@@ -619,7 +619,7 @@ router.delete("/passout-all", authMiddleware, async (req, res) => {
           enrollmentYear: student.enrollmentYear
         });
       } catch (error) {
-        console.error(`Delete failed for ${student.regimentalNo}:`, error);
+        console.error("Delete failed for student:", error.message || error);
         errorCount += 1;
       }
     }
@@ -674,7 +674,7 @@ router.delete("/passout-year/:enrollmentYear", authMiddleware, async (req, res) 
           enrollmentYear: student.enrollmentYear
         });
       } catch (error) {
-        console.error(`Delete failed for ${student.regimentalNo}:`, error);
+        console.error("Delete failed for student:", error.message || error);
         errorCount += 1;
       }
     }

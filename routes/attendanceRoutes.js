@@ -277,7 +277,14 @@ router.post("/mark-bulk", authMiddleware, async (req, res) => {
 
 router.get("/student/:regNo", authMiddleware, async (req, res) => {
   try {
-    const records = await Attendance.find({ regNo: req.params.regNo })
+    const targetRegNo = toSafeString(req.params.regNo, 50).toUpperCase();
+
+    // IDOR Protection: Students can only view their own attendance; Admins can view any student's attendance.
+    if (req.user.role !== "admin" && req.user.regimentalNo !== targetRegNo) {
+      return res.status(403).json({ message: "Access denied. You can only view your own attendance." });
+    }
+
+    const records = await Attendance.find({ regNo: targetRegNo })
       .sort({ date: -1 })
       .lean();
 

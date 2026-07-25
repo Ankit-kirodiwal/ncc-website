@@ -19,6 +19,17 @@ function escapeHTML(str) {
     .replace(/'/g, "&#039;");
 }
 
+function parseJwtPayload(token) {
+  if (!token) return null;
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(window.atob(base64));
+  } catch (_) {
+    return null;
+  }
+}
+
 async function copyTextToClipboard(text, successMessage = "Copied to clipboard!") {
   try {
     const cleanText = String(text || "").trim();
@@ -435,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Auth / role-based UI
   const token = localStorage.getItem("token");
-  const userData = localStorage.getItem("user");
+  const user = parseJwtPayload(token);
 
   const userBar = document.getElementById("userBar");
   const welcomeUser = document.getElementById("welcomeUser");
@@ -448,15 +459,13 @@ document.addEventListener("DOMContentLoaded", () => {
  
   loadPublicHomepageContent();
 
-  if (!token || !userData) {
+  if (!token || !user) {
     if (loginNavBtnDesktop) loginNavBtnDesktop.classList.remove("hidden");
     if (loginNavBtnMobile) loginNavBtnMobile.classList.remove("hidden");
     if (logoutBtnDesktop) logoutBtnDesktop.classList.add("hidden");
     if (logoutBtnMobile) logoutBtnMobile.classList.add("hidden");
     return;
   }
-
-  const user = JSON.parse(userData);
 
   // STUDENT
   if (user.role === "student") {
@@ -503,6 +512,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("user");
     window.location.href = "index.html";
   }
   if (logoutBtnDesktop) logoutBtnDesktop.addEventListener("click", handleLogout);

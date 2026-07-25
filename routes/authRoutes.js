@@ -63,8 +63,10 @@ function maskEmail(email) {
   return `${visiblePart}${"*".repeat(Math.max(localPart.length - 2, 1))}@${domain}`;
 }
 
+const crypto = require("crypto");
+
 function generateNumericOtp() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+  return String(crypto.randomInt(100000, 1000000));
 }
 
 function sanitizeString(val, maxLen = 255) {
@@ -165,7 +167,6 @@ router.post("/register", async (req, res) => {
     });
 
     await newUser.save();
-    console.log("Saved user:", newUser);
     res.status(201).json({
       message: "Registration successful. Wait for admin approval."
     });
@@ -190,7 +191,7 @@ router.post("/forgot-password/request-otp", async (req, res) => {
       return res.status(500).json({ message: mailConfigError });
     }
 
-    console.log("POST /forgot-password/request-otp received body:", body);
+    console.log("POST /forgot-password/request-otp received for login ID:", maskEmail(normalizedLoginId) || normalizedLoginId);
 
     if (!normalizedLoginId) {
       const keys = Object.keys(body).join(", ") || "none";
@@ -211,8 +212,6 @@ router.post("/forgot-password/request-otp", async (req, res) => {
     }
 
     const storedDob = formatDateOnly(user.dob);
-    console.log("OTP Request DOB check:", { inputDob: normalizedDob, storedDob });
-
     if (storedDob !== normalizedDob) {
       return res.status(403).json({ message: "Date of birth does not match our records." });
     }
@@ -474,6 +473,27 @@ router.get("/my-attendance", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: "Error fetching attendance" });
+  }
+});
+
+// Self-service user account deletion route
+router.delete("/delete-account", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove linked attendance records
+    await Attendance.deleteMany({ regNo: user.regimentalNo });
+
+    // Remove user document
+    await User.findByIdAndDelete(user._id);
+
+    res.status(200).json({ message: "Account and associated personal data deleted successfully." });
+  } catch (error) {
+    console.error("Delete Account Error:", error.message || error);
+    res.status(500).json({ message: "Server error during account deletion." });
   }
 });
 

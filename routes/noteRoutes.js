@@ -10,10 +10,23 @@ const {
 } = require("../services/cloudinaryService");
 
 const router = express.Router();
+const ALLOWED_NOTE_EXTENSIONS = new Set([
+  ".pdf", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx",
+  ".txt", ".csv", ".png", ".jpg", ".jpeg"
+]);
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 25 * 1024 * 1024
+  },
+  fileFilter: (_req, file, callback) => {
+    const ext = path.extname(file.originalname || "").toLowerCase();
+    if (ALLOWED_NOTE_EXTENSIONS.has(ext)) {
+      callback(null, true);
+    } else {
+      callback(new Error("File type not allowed. Please upload a valid document or image."));
+    }
   }
 });
 const localNotesDir = path.join(__dirname, "..", "public", "uploads", "notes");

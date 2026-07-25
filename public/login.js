@@ -306,7 +306,7 @@ document.getElementById("studentLoginForm").addEventListener("submit", async (e)
 
     if (res.ok && result.user.role === "student") {
       localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.removeItem("user");
       showMessage("Student login successful", "green");
       setTimeout(() => {
         window.location.href = "index.html";
@@ -424,7 +424,7 @@ document.getElementById("adminLoginForm").addEventListener("submit", async (e) =
 
     if (res.ok && result.user.role === "admin") {
       localStorage.setItem("token", result.token);
-      localStorage.setItem("user", JSON.stringify(result.user));
+      localStorage.removeItem("user");
       showMessage("Admin login successful", "green");
       setTimeout(() => {
         window.location.href = "index.html";

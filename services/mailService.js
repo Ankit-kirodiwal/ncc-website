@@ -121,7 +121,65 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   `
   };
 
-  // Attempt 1: Port 465 SSL (IPv4 direct)
+  // HTTPS API Fallback 1: Resend API (Port 443 - never blocked on Render)
+  if (process.env.RESEND_API_KEY) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: process.env.MAIL_FROM || "NCC Portal <onboarding@resend.dev>",
+          to: [toEmail],
+          subject: "NCC Portal Password Reset OTP",
+          html: mailOptions.html
+        })
+      });
+
+      if (res.ok) {
+        console.log("✅ OTP email delivered via Resend HTTPS API!");
+        return;
+      }
+      const errRes = await res.json();
+      console.warn("Resend API error response:", errRes);
+    } catch (apiErr) {
+      console.warn("Resend API request failed:", apiErr.message || apiErr);
+    }
+  }
+
+  // HTTPS API Fallback 2: Brevo API (Port 443 - never blocked on Render)
+  if (process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY) {
+    const apiKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
+    try {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "api-key": apiKey
+        },
+        body: JSON.stringify({
+          sender: { name: "NCC Portal", email: process.env.MAIL_USER || "noreply@bkbietncc.in" },
+          to: [{ email: toEmail, name: studentName || "Cadet" }],
+          subject: "NCC Portal Password Reset OTP",
+          htmlContent: mailOptions.html
+        })
+      });
+
+      if (res.ok) {
+        console.log("✅ OTP email delivered via Brevo HTTPS API!");
+        return;
+      }
+      const errRes = await res.json();
+      console.warn("Brevo API error response:", errRes);
+    } catch (apiErr) {
+      console.warn("Brevo API request failed:", apiErr.message || apiErr);
+    }
+  }
+
+  // SMTP Attempt 1: Port 465 SSL (IPv4 direct)
   try {
     const primaryTransporter = await createTransporter({ port: 465, secure: true });
     await sendMailWithTransporter(primaryTransporter, mailOptions);
@@ -130,7 +188,7 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
     console.warn("Port 465 SSL transport failed, trying Port 587 STARTTLS...", primaryErr.message || primaryErr);
   }
 
-  // Attempt 2: Port 587 STARTTLS (IPv4 direct)
+  // SMTP Attempt 2: Port 587 STARTTLS (IPv4 direct)
   try {
     const fallbackTransporter587 = await createTransporter({ port: 587, secure: false });
     await sendMailWithTransporter(fallbackTransporter587, mailOptions);
@@ -139,7 +197,7 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
     console.warn("Port 587 transport failed, trying Nodemailer service:'gmail'...", err587.message || err587);
   }
 
-  // Attempt 3: Nodemailer standard Gmail service
+  // SMTP Attempt 3: Nodemailer standard Gmail service
   try {
     const gmailTransporter = nodemailer.createTransport({
       service: "gmail",
@@ -158,7 +216,9 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
       authError.code = gmailErr.code;
       throw authError;
     }
-    throw gmailErr;
+    const renderError = new Error("Render free tier blocks raw SMTP ports 465 & 587. Please add RESEND_API_KEY or BREVO_API_KEY to your Render environment variables to send OTP emails over HTTPS (Port 443).");
+    renderError.code = "RENDER_SMTP_BLOCKED";
+    throw renderError;
   }
 }
 
