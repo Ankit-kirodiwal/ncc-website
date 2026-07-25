@@ -21,8 +21,13 @@ let forgotOtpRequested = false;
 let forgotOtpVerified = false;
 
 function showTab(tabId) {
-  closeForgotPasswordPanel();
+  try {
+    closeForgotPasswordPanel();
+  } catch (_) {}
   showMessage("", "green");
+
+  const targetSection = document.getElementById(tabId);
+  if (!targetSection) return;
 
   document.querySelectorAll(".form-section").forEach((section) => {
     section.classList.remove("active");
@@ -32,10 +37,10 @@ function showTab(tabId) {
     btn.classList.remove("active");
   });
 
-  document.getElementById(tabId).classList.add("active");
+  targetSection.classList.add("active");
 
   const clickedBtn = Array.from(document.querySelectorAll(".tab-btn")).find((btn) =>
-    btn.getAttribute("onclick")?.includes(tabId)
+    btn.getAttribute("onclick")?.includes(tabId) || btn.dataset.tab === tabId
   );
 
   if (clickedBtn) {
@@ -59,15 +64,17 @@ function togglePassword(inputId) {
 }
 
 function resetForgotPasswordSteps() {
-  forgotStep1.hidden = false;
-  forgotStep2.hidden = true;
-  forgotStep3.hidden = true;
+  if (forgotStep1) forgotStep1.hidden = false;
+  if (forgotStep2) forgotStep2.hidden = true;
+  if (forgotStep3) forgotStep3.hidden = true;
   
-  forgotLoginIdInput.disabled = false;
-  forgotDobInput.disabled = false;
-  sendOtpBtn.style.display = "block";
-  sendOtpBtn.disabled = false;
-  sendOtpBtn.textContent = "Send OTP";
+  if (forgotLoginIdInput) forgotLoginIdInput.disabled = false;
+  if (forgotDobInput) forgotDobInput.disabled = false;
+  if (sendOtpBtn) {
+    sendOtpBtn.style.display = "block";
+    sendOtpBtn.disabled = false;
+    sendOtpBtn.textContent = "Send OTP";
+  }
 
   if (forgotOtpInput) {
     forgotOtpInput.value = "";
@@ -78,14 +85,18 @@ function resetForgotPasswordSteps() {
     verifyOtpBtn.textContent = "Verify OTP";
   }
 
-  document.getElementById("forgotNewPassword").value = "";
-  document.getElementById("forgotConfirmPassword").value = "";
+  const newPass = document.getElementById("forgotNewPassword");
+  if (newPass) newPass.value = "";
+  const confirmPass = document.getElementById("forgotConfirmPassword");
+  if (confirmPass) confirmPass.value = "";
 
   forgotOtpRequested = false;
   forgotOtpVerified = false;
 
-  forgotOtpStatus.hidden = true;
-  forgotOtpStatus.textContent = "";
+  if (forgotOtpStatus) {
+    forgotOtpStatus.hidden = true;
+    forgotOtpStatus.textContent = "";
+  }
 
   if (forgotInstruction) {
     forgotInstruction.textContent = "Confirm your details (Email/Regimental No and Date of Birth) to request an OTP.";
@@ -97,23 +108,26 @@ const studentLoginForm = document.getElementById("studentLoginForm");
 function openForgotPasswordPanel() {
   if (studentLoginForm) studentLoginForm.hidden = true;
   if (forgotPasswordToggle) forgotPasswordToggle.hidden = true;
-  forgotPasswordPanel.hidden = false;
+  if (forgotPasswordPanel) forgotPasswordPanel.hidden = false;
   resetForgotPasswordSteps();
-  forgotLoginIdInput.value = studentLoginIdInput.value.trim();
+  if (forgotLoginIdInput && studentLoginIdInput) {
+    forgotLoginIdInput.value = studentLoginIdInput.value.trim();
+  }
   showMessage("", "green");
 }
 
 function closeForgotPasswordPanel() {
-  forgotPasswordPanel.hidden = true;
+  if (forgotPasswordPanel) forgotPasswordPanel.hidden = true;
   if (studentLoginForm) studentLoginForm.hidden = false;
   if (forgotPasswordToggle) forgotPasswordToggle.hidden = false;
-  document.getElementById("forgotPasswordForm").reset();
+  const form = document.getElementById("forgotPasswordForm");
+  if (form) form.reset();
   resetForgotPasswordSteps();
   showMessage("", "green");
 }
 
-forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
-forgotPasswordCancel.addEventListener("click", closeForgotPasswordPanel);
+if (forgotPasswordToggle) forgotPasswordToggle.addEventListener("click", openForgotPasswordPanel);
+if (forgotPasswordCancel) forgotPasswordCancel.addEventListener("click", closeForgotPasswordPanel);
 
 async function handleSendOtp() {
   const forgotVal = (document.getElementById("forgotLoginId")?.value || "").trim();
@@ -288,151 +302,131 @@ document.getElementById("studentRegisterForm").addEventListener("submit", async 
 document.getElementById("studentLoginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const data = {
-    loginId: studentLoginIdInput.value.trim(),
-    password: document.getElementById("studentLoginPassword").value
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await res.json();
-
-    if (res.ok && result.user.role === "student") {
-      localStorage.setItem("token", result.token);
-      localStorage.removeItem("user");
-      showMessage("Student login successful", "green");
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 1000);
-    } else if (res.ok && result.user.role === "admin") {
-      showMessage("Admin login detected. Please use the admin login tab.", "orange");
-    } else {
-      showMessage(result.message || "Login failed", "red");
+const studentForm = document.getElementById("studentLoginForm");
+if (studentForm) {
+  studentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = {
+      loginId: studentLoginIdInput.value.trim(),
+      password: document.getElementById("studentLoginPassword").value
+    };
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok && result.user.role === "student") {
+        localStorage.setItem("token", result.token);
+        localStorage.removeItem("user");
+        showMessage("Student login successful", "green");
+        setTimeout(() => { window.location.href = "index.html"; }, 1000);
+      } else if (res.ok && result.user.role === "admin") {
+        showMessage("Admin login detected. Please use the admin login tab.", "orange");
+      } else {
+        showMessage(result.message || "Login failed", "red");
+      }
+    } catch (error) {
+      showMessage("Something went wrong during login", "red");
     }
-  } catch (error) {
-    showMessage("Something went wrong during login", "red");
-  }
-});
+  });
+}
 
-document.getElementById("forgotPasswordForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
+const forgotForm = document.getElementById("forgotPasswordForm");
+if (forgotForm) {
+  forgotForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const loginId = forgotLoginIdInput ? forgotLoginIdInput.value.trim() : "";
+    const dob = document.getElementById("forgotDob") ? document.getElementById("forgotDob").value : "";
+    const otp = document.getElementById("forgotOtp") ? document.getElementById("forgotOtp").value.trim() : "";
+    const newPassword = document.getElementById("forgotNewPassword") ? document.getElementById("forgotNewPassword").value : "";
+    const confirmPassword = document.getElementById("forgotConfirmPassword") ? document.getElementById("forgotConfirmPassword").value : "";
 
-  const loginId = forgotLoginIdInput.value.trim();
-  const dob = document.getElementById("forgotDob").value;
-  const otp = document.getElementById("forgotOtp").value.trim();
-  const newPassword = document.getElementById("forgotNewPassword").value;
-  const confirmPassword = document.getElementById("forgotConfirmPassword").value;
+    if (!forgotOtpRequested) {
+      showMessage("Please request OTP first.", "red");
+      return;
+    }
+    if (otp.length !== 6) {
+      showMessage("Enter the 6-digit OTP sent to your email.", "red");
+      return;
+    }
+    if (!forgotOtpVerified) {
+      showMessage("Please click 'Verify OTP' to verify your OTP first.", "red");
+      return;
+    }
+    if (!newPassword || !confirmPassword) {
+      showMessage("Please enter your new password.", "red");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showMessage("New password and confirm password must match.", "red");
+      return;
+    }
+    if (newPassword.length < 6) {
+      showMessage("New password must be at least 6 characters.", "red");
+      return;
+    }
 
-  if (!forgotOtpRequested) {
-    showMessage("Please request OTP first.", "red");
-    return;
-  }
+    const resetBtn = document.getElementById("resetPasswordSubmitBtn");
+    if (resetBtn) {
+      resetBtn.disabled = true;
+      resetBtn.textContent = "Resetting Password...";
+    }
 
-  if (otp.length !== 6) {
-    showMessage("Enter the 6-digit OTP sent to your email.", "red");
-    return;
-  }
-
-  if (!forgotOtpVerified) {
-    showMessage("Please click 'Verify OTP' to verify your OTP first.", "red");
-    return;
-  }
-
-  if (!newPassword || !confirmPassword) {
-    showMessage("Please enter your new password.", "red");
-    return;
-  }
-
-  if (newPassword !== confirmPassword) {
-    showMessage("New password and confirm password must match.", "red");
-    return;
-  }
-
-  if (newPassword.length < 6) {
-    showMessage("New password must be at least 6 characters.", "red");
-    return;
-  }
-
-  const resetBtn = document.getElementById("resetPasswordSubmitBtn");
-  if (resetBtn) {
-    resetBtn.disabled = true;
-    resetBtn.textContent = "Resetting Password...";
-  }
-
-  try {
-    const res = await fetch(`${API_BASE}/auth/forgot-password/verify-otp`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        loginId,
-        dob,
-        otp,
-        newPassword
-      })
-    });
-
-    const result = await res.json();
-
-    if (!res.ok) {
-      showMessage(result.message || "Unable to reset password.", "red");
+    try {
+      const res = await fetch(`${API_BASE}/auth/forgot-password/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ loginId, dob, otp, newPassword })
+      });
+      const result = await res.json();
+      if (!res.ok) {
+        showMessage(result.message || "Unable to reset password.", "red");
+        if (resetBtn) {
+          resetBtn.disabled = false;
+          resetBtn.textContent = "Reset Password";
+        }
+        return;
+      }
+      if (studentLoginIdInput) studentLoginIdInput.value = loginId;
+      closeForgotPasswordPanel();
+      showMessage(result.message || "Password reset successful. Please log in with your new password.", "green");
+    } catch (error) {
+      showMessage("Something went wrong during password reset", "red");
       if (resetBtn) {
         resetBtn.disabled = false;
         resetBtn.textContent = "Reset Password";
       }
-      return;
     }
+  });
+}
 
-    studentLoginIdInput.value = loginId;
-    closeForgotPasswordPanel();
-    showMessage(result.message || "Password reset successful. Please log in with your new password.", "green");
-  } catch (error) {
-    showMessage("Something went wrong during password reset", "red");
-    if (resetBtn) {
-      resetBtn.disabled = false;
-      resetBtn.textContent = "Reset Password";
+const adminForm = document.getElementById("adminLoginForm");
+if (adminForm) {
+  adminForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const data = {
+      loginId: document.getElementById("adminLoginId").value.trim(),
+      password: document.getElementById("adminLoginPassword").value
+    };
+    try {
+      const res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      const result = await res.json();
+      if (res.ok && result.user.role === "admin") {
+        localStorage.setItem("token", result.token);
+        localStorage.removeItem("user");
+        showMessage("Admin login successful", "green");
+        setTimeout(() => { window.location.href = "index.html"; }, 1000);
+      } else {
+        showMessage(result.message || "Invalid admin login", "red");
+      }
+    } catch (error) {
+      showMessage("Something went wrong during admin login", "red");
     }
-  }
-});
-
-document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const data = {
-    loginId: document.getElementById("adminLoginId").value.trim(),
-    password: document.getElementById("adminLoginPassword").value
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await res.json();
-
-    if (res.ok && result.user.role === "admin") {
-      localStorage.setItem("token", result.token);
-      localStorage.removeItem("user");
-      showMessage("Admin login successful", "green");
-      setTimeout(() => {
-        window.location.href = "index.html";
-      }, 1000);
-    } else {
-      showMessage(result.message || "Invalid admin login", "red");
-    }
-  } catch (error) {
-    showMessage("Something went wrong during admin login", "red");
-  }
-});
+  });
+}

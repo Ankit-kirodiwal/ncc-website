@@ -212,9 +212,9 @@
     <h1>Login / Register</h1>
 
     <div class="tabs">
-      <button class="tab-btn active" onclick="showTab('studentLogin')">Student Login</button>
-      <button class="tab-btn" onclick="showTab('studentRegister')">Student Register</button>
-      <button class="tab-btn" onclick="showTab('adminLogin')">Admin Login</button>
+      <button type="button" class="tab-btn active" data-tab="studentLogin" onclick="showTab('studentLogin')">Student Login</button>
+      <button type="button" class="tab-btn" data-tab="studentRegister" onclick="showTab('studentRegister')">Student Register</button>
+      <button type="button" class="tab-btn" data-tab="adminLogin" onclick="showTab('adminLogin')">Admin Login</button>
     </div>
 
     <div id="studentLogin" class="form-section active">
