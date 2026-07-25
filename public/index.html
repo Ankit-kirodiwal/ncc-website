@@ -134,7 +134,7 @@
         <h3>Manage Notes</h3>
         <p>Upload and manage NCC notes and study material.</p>
       </div>
-      <button onclick="document.getElementById('notesPopup').classList.remove('hidden')">
+      <button type="button" onclick="openAdminPopup('notesPopup')">
         Open Notes
       </button>
     </div>
@@ -157,10 +157,10 @@
         <p>Manage achievements, camps, and gallery content.</p>
       </div>
       <div class="card-action-row">
-        <button onclick="document.getElementById('contentPopup').classList.remove('hidden')">
+        <button type="button" onclick="openAdminPopup('contentPopup')">
           Add Content
         </button>
-        <button onclick="document.getElementById('assetsPopup').classList.remove('hidden')">
+        <button type="button" onclick="openAdminPopup('assetsPopup')">
           Manage Assets
         </button>
       </div>
@@ -184,7 +184,7 @@
     <div class="popup-content">
       <div class="popup-header">
         <h2>Manage Notes</h2>
-        <span class="close-btn" onclick="document.getElementById('notesPopup').classList.add('hidden')">&times;</span>
+        <span class="close-btn" onclick="closeAdminPopup('notesPopup')">&times;</span>
       </div>
 
       <div class="card">
@@ -209,7 +209,7 @@
     <div class="popup-content large-popup">
       <div class="popup-header">
         <h2>Add Content</h2>
-        <span class="close-btn" onclick="document.getElementById('contentPopup').classList.add('hidden')">&times;</span>
+        <span class="close-btn" onclick="closeAdminPopup('contentPopup')">&times;</span>
       </div>
 
       <div class="card content-manager-card">
@@ -270,7 +270,7 @@
     <div class="popup-content large-popup">
       <div class="popup-header">
         <h2>Manage Assets</h2>
-        <span class="close-btn" onclick="document.getElementById('assetsPopup').classList.add('hidden')">&times;</span>
+        <span class="close-btn" onclick="closeAdminPopup('assetsPopup')">&times;</span>
       </div>
 
       <div class="card content-manager-card">

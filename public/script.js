@@ -9,6 +9,30 @@ function toggleContent(id) {
 
 const API_BASE = "/api";
 
+function getAuthToken() {
+  return localStorage.getItem("token") || "";
+}
+
+function openAdminPopup(id) {
+  const popup = document.getElementById(id);
+  if (popup) {
+    popup.classList.remove("hidden");
+    popup.style.display = "flex";
+  }
+}
+
+function closeAdminPopup(id) {
+  const popup = document.getElementById(id);
+  if (popup) {
+    popup.classList.add("hidden");
+    popup.style.display = "none";
+  }
+}
+
+window.getAuthToken = getAuthToken;
+window.openAdminPopup = openAdminPopup;
+window.closeAdminPopup = closeAdminPopup;
+
 function escapeHTML(str) {
   if (str === null || str === undefined) return "";
   return String(str)
@@ -24,9 +48,21 @@ function parseJwtPayload(token) {
   try {
     const base64Url = token.split(".")[1];
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(window.atob(base64));
+    const jsonPayload = decodeURIComponent(
+      window.atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
   } catch (_) {
-    return null;
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      return JSON.parse(window.atob(base64));
+    } catch (e) {
+      return null;
+    }
   }
 }
 
@@ -628,7 +664,6 @@ async function loadStudentNotes(token) {
       notesList.innerHTML = "<li>No notes available yet</li>";
       return;
     }
-    const notesList = document.getElementById("notesList");
     const adminNotesList = document.getElementById("adminNotesList");
     // For students, show basic note info
     if (notesList) {
