@@ -221,8 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await res.json();
         if (res.ok && result.user?.role === "admin") {
           localStorage.setItem("token", result.token);
-          localStorage.removeItem("user");
-          showMessage("Admin login successful", "green");
+          localStorage.setItem("user", JSON.stringify(result.user));
+          showMessage("Admin login successful. Redirecting...", "green");
           setTimeout(() => { window.location.href = "index.html"; }, 1000);
         } else {
           showMessage(result.message || "Invalid admin login", "red");

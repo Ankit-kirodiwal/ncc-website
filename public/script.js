@@ -480,9 +480,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Auth / role-based UI
   const token = localStorage.getItem("token");
-  const user = parseJwtPayload(token);
+  let user = parseJwtPayload(token);
+  if (!user && localStorage.getItem("user")) {
+    try {
+      user = JSON.parse(localStorage.getItem("user"));
+    } catch (_) {}
+  }
 
   const userBar = document.getElementById("userBar");
   const welcomeUser = document.getElementById("welcomeUser");
