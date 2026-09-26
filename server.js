@@ -214,4 +214,20 @@ mongoose
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
+
+  const keepAliveUrl = process.env.KEEP_ALIVE_URL || process.env.RENDER_EXTERNAL_URL;
+  if (keepAliveUrl) {
+    const heartbeatInterval = 14 * 60 * 1000 + 30 * 1000;
+    const heartbeat = async () => {
+      try {
+        const response = await fetch(`${keepAliveUrl.replace(/\/$/, "")}/health`);
+        console.log(`✅ Keep-alive heartbeat: ${response.status}`);
+      } catch (error) {
+        console.error("❌ Keep-alive heartbeat failed:", error.message || error);
+      }
+    };
+
+    setInterval(heartbeat, heartbeatInterval);
+    console.log(`✅ Keep-alive enabled: ${keepAliveUrl}/health every 14 minutes 30 seconds`);
+  }
 });
