@@ -18,6 +18,11 @@ function openAdminPopup(id) {
   if (popup) {
     popup.classList.remove("hidden");
     popup.style.display = "flex";
+    const content = popup.querySelector(".popup-content");
+    if (content) {
+      content.scrollTop = 0;
+    }
+    document.body.style.overflow = "hidden";
   }
 }
 
@@ -26,8 +31,31 @@ function closeAdminPopup(id) {
   if (popup) {
     popup.classList.add("hidden");
     popup.style.display = "none";
+    const remainingOpen = document.querySelectorAll(".popup:not(.hidden)");
+    if (!remainingOpen.length) {
+      document.body.style.overflow = "";
+    }
   }
 }
+
+// Close popups on backdrop click
+document.addEventListener("click", (e) => {
+  if (e.target && e.target.classList && e.target.classList.contains("popup")) {
+    closeAdminPopup(e.target.id);
+  }
+});
+
+// Close popups on Escape key
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const popups = document.querySelectorAll(".popup");
+    popups.forEach((p) => {
+      if (p.style.display === "flex" || !p.classList.contains("hidden")) {
+        closeAdminPopup(p.id);
+      }
+    });
+  }
+});
 
 window.getAuthToken = getAuthToken;
 window.openAdminPopup = openAdminPopup;
@@ -747,12 +775,25 @@ function setupAddNoteForm() {
 
     const token = getAuthToken();
     const noteFile = document.getElementById("noteFile").files[0];
+    const submitBtn = addNoteForm.querySelector('button[type="submit"]');
 
     if (!noteFile) {
       noteMessage.textContent = "Please choose a note file.";
-      noteMessage.style.color = "red";
+      noteMessage.style.color = "#dc2626";
       return;
     }
+
+    const originalBtnText = submitBtn ? submitBtn.textContent : "Add Note";
+
+    // Dim form and show uploading state
+    addNoteForm.style.opacity = "0.45";
+    addNoteForm.style.pointerEvents = "none";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Uploading Note...";
+    }
+    noteMessage.textContent = "Uploading note, please wait...";
+    noteMessage.style.color = "#2563eb";
 
     const formData = new FormData();
     formData.append("title", document.getElementById("noteTitle").value.trim());
@@ -769,16 +810,25 @@ function setupAddNoteForm() {
       });
 
       const result = await res.json();
-      noteMessage.textContent = result.message;
-      noteMessage.style.color = res.ok ? "green" : "red";
+      noteMessage.textContent = res.ok
+        ? "✓ " + (result.message || "Note added successfully!")
+        : result.message || "Failed to add note.";
+      noteMessage.style.color = res.ok ? "#16a34a" : "#dc2626";
 
       if (res.ok) {
         addNoteForm.reset();
-        loadStudentNotes(token);
+        await loadStudentNotes(token);
       }
     } catch (error) {
       noteMessage.textContent = "Error adding note";
-      noteMessage.style.color = "red";
+      noteMessage.style.color = "#dc2626";
+    } finally {
+      addNoteForm.style.opacity = "1";
+      addNoteForm.style.pointerEvents = "auto";
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
     }
   });
 }
@@ -1220,9 +1270,24 @@ function setupContentManager(token) {
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
 
+    const submitBtn = document.getElementById("contentSubmitBtn");
     const contentId = document.getElementById("contentItemId").value.trim();
-    const formData = new FormData();
+    const originalBtnText = submitBtn ? submitBtn.textContent : (contentId ? "Update Content" : "Add Content");
+    const messageElement = document.getElementById("contentMessage");
 
+    // Dim form and disable interaction so the user knows submission is in progress
+    form.style.opacity = "0.45";
+    form.style.pointerEvents = "none";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = contentId ? "Updating Content..." : "Adding Content (Uploading)...";
+    }
+    if (messageElement) {
+      messageElement.textContent = "Uploading asset & saving content...";
+      messageElement.style.color = "#2563eb";
+    }
+
+    const formData = new FormData();
     formData.append("section", document.getElementById("contentSection").value);
     formData.append("title", document.getElementById("contentTitle").value.trim());
     formData.append("subtitle", document.getElementById("contentSubtitle").value.trim());
@@ -1255,9 +1320,12 @@ function setupContentManager(token) {
       });
 
       const result = await res.json();
-      const messageElement = document.getElementById("contentMessage");
-      messageElement.textContent = result.message || "Request complete.";
-      messageElement.style.color = res.ok ? "green" : "red";
+      if (messageElement) {
+        messageElement.textContent = res.ok
+          ? "✓ " + (result.message || (contentId ? "Content updated successfully!" : "Content added successfully!"))
+          : result.message || "Request failed.";
+        messageElement.style.color = res.ok ? "#16a34a" : "#dc2626";
+      }
 
       if (!res.ok) {
         return;
@@ -1266,14 +1334,36 @@ function setupContentManager(token) {
       resetContentManagerForm();
       await loadAdminContentList(token);
       await loadPublicHomepageContent();
+
+      // Automatically close popup after brief success display so user sees confirmation
+      setTimeout(() => {
+        closeAdminPopup("contentPopup");
+        if (messageElement) {
+          messageElement.textContent = "";
+        }
+      }, 1100);
     } catch (error) {
-      const messageElement = document.getElementById("contentMessage");
-      messageElement.textContent = "Error saving homepage content.";
-      messageElement.style.color = "red";
+      if (messageElement) {
+        messageElement.textContent = "Error saving homepage content.";
+        messageElement.style.color = "#dc2626";
+      }
+    } finally {
+      form.style.opacity = "1";
+      form.style.pointerEvents = "auto";
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalBtnText;
+      }
     }
   });
 
-  cancelButton.addEventListener("click", resetContentManagerForm);
+  if (cancelButton) {
+    cancelButton.addEventListener("click", () => {
+      resetContentManagerForm();
+      closeAdminPopup("contentPopup");
+      openAdminPopup("assetsPopup");
+    });
+  }
 }
 
 async function loadAdminContentList(token) {
@@ -1353,7 +1443,7 @@ function renderAdminContentList() {
             ${item.section !== "national-camps" && item.highlightText ? `<p class="public-content-highlight">${escapeHtml(item.highlightText)}</p>` : ""}
           </div>
           <div class="admin-content-actions">
-            <button type="button" onclick="startEditContentItem('${item._id}')">Edit</button>
+            <button type="button" class="edit-action" onclick="startEditContentItem('${item._id}')">Edit</button>
             <button type="button" class="delete-action" onclick="deleteContentItem('${item._id}')">Delete</button>
           </div>
         </div>
@@ -1365,19 +1455,13 @@ function renderAdminContentList() {
 function startEditContentItem(itemId) {
   const item = homepageContentCache.find((entry) => entry._id === itemId);
   if (!item) {
+    console.error("Item not found in cache for ID:", itemId);
     return;
   }
 
-  const contentPopup = document.getElementById("contentPopup");
-  const assetsPopup = document.getElementById("assetsPopup");
-
-  if (assetsPopup) {
-    assetsPopup.classList.add("hidden");
-  }
-
-  if (contentPopup) {
-    contentPopup.classList.remove("hidden");
-  }
+  // Properly switch from Manage Assets to Add Content popup
+  closeAdminPopup("assetsPopup");
+  openAdminPopup("contentPopup");
 
   document.getElementById("contentItemId").value = item._id;
   document.getElementById("contentSection").value = item.section;
@@ -1395,14 +1479,15 @@ function startEditContentItem(itemId) {
 
   const messageElement = document.getElementById("contentMessage");
   if (messageElement) {
-    messageElement.textContent = `Editing ${getSectionLabel(item.section)} item.`;
-    messageElement.style.color = "#165fa6";
+    messageElement.textContent = `Editing: ${item.title || getSectionLabel(item.section)}`;
+    messageElement.style.color = "#2563eb";
   }
 
-  document.getElementById("contentItemForm").scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
+  const contentPopup = document.getElementById("contentPopup");
+  const popupContent = contentPopup?.querySelector(".popup-content");
+  if (popupContent) {
+    popupContent.scrollTop = 0;
+  }
 }
 
 async function deleteContentItem(itemId) {
@@ -1455,3 +1540,7 @@ function resetContentManagerForm() {
     messageElement.textContent = "";
   }
 }
+
+window.startEditContentItem = startEditContentItem;
+window.deleteContentItem = deleteContentItem;
+window.resetContentManagerForm = resetContentManagerForm;
