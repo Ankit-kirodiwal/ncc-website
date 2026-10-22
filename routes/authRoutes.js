@@ -100,7 +100,7 @@ setInterval(() => {
 
 function checkLoginRateLimit(ip, loginId, role = "student") {
   const windowMs = 60 * 60 * 1000; // 1 hour
-  const maxAttempts = role === "admin" ? 10 : 5;
+  const maxAttempts = role === "admin" ? 50 : 25;
   const key = `${ip}:${(loginId || "unknown").toLowerCase()}`;
   const now = Date.now();
   const windowStart = now - windowMs;
@@ -408,7 +408,7 @@ router.post("/login", async (req, res) => {
         regimentalNo: user.regimentalNo
       },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({
@@ -494,6 +494,21 @@ router.delete("/delete-account", authMiddleware, async (req, res) => {
   } catch (error) {
     console.error("Delete Account Error:", error.message || error);
     res.status(500).json({ message: "Server error during account deletion." });
+  }
+});
+
+// Logout route: increments tokenVersion in DB to instantly invalidate all previous JWT tokens
+router.post("/logout", authMiddleware, async (req, res) => {
+  try {
+    if (req.user?.userId) {
+      await User.findByIdAndUpdate(req.user.userId, {
+        $inc: { tokenVersion: 1 }
+      });
+    }
+    res.status(200).json({ message: "Logged out successfully. All active sessions have been invalidated." });
+  } catch (error) {
+    console.error("Logout Error:", error);
+    res.status(500).json({ message: "Server error during logout." });
   }
 });
 

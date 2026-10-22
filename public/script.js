@@ -549,7 +549,19 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtnDesktop) logoutBtnDesktop.classList.remove("hidden");
   if (logoutBtnMobile) logoutBtnMobile.classList.remove("hidden");
   
-  function handleLogout() {
+  async function handleLogout() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        await fetch("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (_) {}
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     sessionStorage.removeItem("user");

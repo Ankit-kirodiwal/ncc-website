@@ -142,23 +142,28 @@ const apiLimiter = rateLimit({
 // Dedicated rate limiters for Auth Endpoints
 const loginLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 5, // 5 attempts per minute per IP
-  message: { message: "Too many login attempts. Please try again in 1 minute." },
+  max: 10, // 10 attempts per minute per IP+ID
+  keyGenerator: (req) => {
+    const clientIp = req.headers["x-forwarded-for"]?.split(",")[0]?.trim() || req.ip || "unknown";
+    const id = (req.body?.loginId || req.body?.email || req.body?.regimentalNo || "").trim().toLowerCase();
+    return `${clientIp}:${id}`;
+  },
+  message: { message: "Too many login attempts for this account from your IP. Please try again in 1 minute." },
   standardHeaders: true,
   legacyHeaders: false
 });
 
 const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 3, // 3 requests per hour per IP
-  message: { message: "Too many password reset requests. Please try again in 1 hour." },
+  max: 5, // 5 requests per hour per IP
+  message: { message: "Too many password reset requests from this IP. Please try again in 1 hour." },
   standardHeaders: true,
   legacyHeaders: false
 });
 
 const registerLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 hour
-  max: 5, // 5 registration attempts per hour per IP
+  max: 30, // 30 registration attempts per hour per IP
   message: { message: "Too many registration attempts from this IP. Please try again in 1 hour." },
   standardHeaders: true,
   legacyHeaders: false
