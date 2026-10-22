@@ -35,7 +35,15 @@ process.on("unhandledRejection", (reason, promise) => {
   console.error("❌ Unhandled Rejection at:", promise, "reason:", reason);
 });
 
+// ==================== ENVIRONMENT & APP INITIALIZATION ====================
+if (!process.env.NODE_ENV) {
+  process.env.NODE_ENV = "production";
+}
+
 const app = express();
+
+// Disable X-Powered-By header to prevent fingerprinting
+app.disable("x-powered-by");
 
 // Enable trust proxy so Render/cloud reverse proxies pass the real client IP
 app.set("trust proxy", 1);
@@ -46,6 +54,9 @@ app.use(
     noSniff: true,
     frameguard: { action: "deny" },
     hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
@@ -59,6 +70,13 @@ app.use(
     }
   })
 );
+
+// Additional security headers (Permissions Policy & Cross-Domain restriction)
+app.use((req, res, next) => {
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
+  next();
+});
 
 // ==================== CORS CONFIGURATION ====================
 const defaultAllowedOrigins = [
@@ -122,11 +140,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// Serve all frontend static files with 304 completely disabled (always return 200 OK)
+// Serve all frontend static files (dotfiles strictly denied to prevent accidental leakage)
 app.use(
   express.static(path.join(__dirname, "public"), {
     etag: false,
-    lastModified: false
+    lastModified: false,
+    dotfiles: "deny"
   })
 );
 
