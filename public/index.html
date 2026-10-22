@@ -104,21 +104,6 @@
       </button>
     </div>
   </section>
-
-  <!-- Notes Modal -->
-  <div id="notesModal" class="notes-modal">
-    <div class="notes-modal-content">
-      <!-- Header -->
-      <div class="notes-modal-header">
-        <h2>All Notes</h2>
-        <span id="closeNotesModal" class="close-notes-modal">
-          &times;
-        </span>
-      </div>
-      <!-- Notes List -->
-      <ul id="notesList" class="notes-list"></ul>
-    </div>
-  </div>
 </section>
 <!-- Admin Panel -->
 <section id="adminPanel" class="admin-panel">
@@ -178,127 +163,6 @@
     </div>
 
   </div>
-
-  <!-- NOTES POPUP -->
-  <div id="notesPopup" class="popup hidden">
-    <div class="popup-content">
-      <div class="popup-header">
-        <h2>Manage Notes</h2>
-        <span class="close-btn" onclick="closeAdminPopup('notesPopup')">&times;</span>
-      </div>
-
-      <div class="popup-body">
-        <form id="addNoteForm" class="form-style" enctype="multipart/form-data">
-          <input type="text" id="noteTitle" placeholder="Note Title" required />
-          <input type="text" id="noteDescription" placeholder="Description" />
-          <input type="file" id="noteFile" required />
-          <button type="submit">Add Note</button>
-        </form>
-        <p id="noteMessage"></p>
-        <hr style="margin:15px 0;">
-        <div id="adminNotesList">
-          <p>Loading notes...</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ADD CONTENT POPUP -->
-  <div id="contentPopup" class="popup hidden">
-    <div class="popup-content large-popup">
-      <div class="popup-header">
-        <h2>Add Content</h2>
-        <span class="close-btn" onclick="closeAdminPopup('contentPopup')">&times;</span>
-      </div>
-
-      <div class="popup-body">
-        <form id="contentItemForm" class="form-style content-manager-form" enctype="multipart/form-data">
-          <input type="hidden" id="contentItemId" />
-          <div class="content-form-grid">
-            <div class="content-field-span-full">
-              <label for="contentSection" class="content-field-label">Section</label>
-              <select id="contentSection" required>
-                <option value="achievements">NCC Cadet Achievements</option>
-                <option value="national-camps">BKBIET Cadets at National Camps</option>
-                <option value="gallery" selected>Students Gallery</option>
-              </select>
-            </div>
-            <div>
-              <label for="contentTitle" class="content-field-label">Title</label>
-              <input type="text" id="contentTitle" placeholder="Student Name / Title" />
-            </div>
-            <div>
-              <label for="contentSubtitle" class="content-field-label">Subtitle</label>
-              <input type="text" id="contentSubtitle" placeholder="Subtitle / Regimental No" />
-            </div>
-            <div id="contentFactsGroup" class="content-field-span-full">
-              <label for="contentFacts" class="content-field-label">Facts</label>
-              <textarea id="contentFacts" rows="3" placeholder="Facts, one per line.&#10;Example:&#10;DOB: 19.03.2003&#10;Camp: TSC 2023"></textarea>
-            </div>
-            <div id="contentHighlightGroup">
-              <label for="contentHighlight" class="content-field-label">Highlight</label>
-              <input type="text" id="contentHighlight" placeholder="Highlight text / achievement line" />
-            </div>
-            <div>
-              <label for="contentAltText" class="content-field-label">Image Alt Text</label>
-              <input type="text" id="contentAltText" placeholder="Image alt text" />
-            </div>
-            <div>
-              <label for="contentSortOrder" class="content-field-label">Sort Order</label>
-              <input type="number" id="contentSortOrder" placeholder="Sort order" value="0" />
-            </div>
-          </div>
-          <input type="hidden" id="contentImageUrl" />
-          <div class="content-upload-box">
-            <input type="file" id="contentImageFile" accept="image/*" />
-          </div>
-          <div class="inline-form-actions">
-            <button type="submit" id="contentSubmitBtn">Add Content</button>
-            <button type="button" id="contentCancelEditBtn" class="secondary-action hidden">Cancel Edit</button>
-          </div>
-        </form>
-        <p id="contentMessage"></p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- MANAGE ASSETS POPUP -->
-  <div id="assetsPopup" class="popup hidden">
-    <div class="popup-content large-popup">
-      <div class="popup-header">
-        <h2>Manage Assets</h2>
-        <span class="close-btn" onclick="closeAdminPopup('assetsPopup')">&times;</span>
-      </div>
-
-      <div class="popup-body">
-        <div class="content-assets-toolbar">
-          <div class="content-assets-title">
-            <h4>Managed Assets</h4>
-            <p>Filter and search assets instead of scrolling the full list.</p>
-          </div>
-          <div class="content-assets-filters">
-            <select id="adminContentSectionFilter">
-              <option value="all">All Sections</option>
-              <option value="achievements">Achievements</option>
-              <option value="national-camps">National Camps</option>
-              <option value="gallery">Gallery</option>
-            </select>
-            <input type="text" id="adminContentSearchInput" placeholder="Search title, subtitle, facts..." />
-          </div>
-        </div>
-
-        <hr style="margin:15px 0;">
-
-        <div id="adminContentList" class="admin-content-list">
-          <p>Loading homepage content...</p>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
 </section>
 <!-- Main Content -->
     <div class="container mx-auto px-4 sm:px-6 py-10 sm:py-12">
@@ -1178,6 +1042,133 @@
 </section>
 </main>
 
+  <!-- NOTES MODAL (STUDENTS) -->
+  <div id="notesModal" class="notes-modal">
+    <div class="notes-modal-content">
+      <div class="notes-modal-header">
+        <h2>All Notes</h2>
+        <span id="closeNotesModal" class="close-notes-modal">&times;</span>
+      </div>
+      <ul id="notesList" class="notes-list"></ul>
+    </div>
+  </div>
+
+  <!-- NOTES POPUP (ADMIN) -->
+  <div id="notesPopup" class="popup hidden">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h2>Manage Notes</h2>
+        <span class="close-btn" onclick="closeAdminPopup('notesPopup')">&times;</span>
+      </div>
+
+      <div class="popup-body">
+        <form id="addNoteForm" class="form-style" enctype="multipart/form-data">
+          <input type="text" id="noteTitle" placeholder="Note Title" required />
+          <input type="text" id="noteDescription" placeholder="Description" />
+          <input type="file" id="noteFile" required />
+          <button type="submit">Add Note</button>
+        </form>
+        <p id="noteMessage"></p>
+        <hr style="margin:15px 0;">
+        <div id="adminNotesList">
+          <p>Loading notes...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD CONTENT POPUP -->
+  <div id="contentPopup" class="popup hidden">
+    <div class="popup-content large-popup">
+      <div class="popup-header">
+        <h2>Add Content</h2>
+        <span class="close-btn" onclick="closeAdminPopup('contentPopup')">&times;</span>
+      </div>
+
+      <div class="popup-body">
+        <form id="contentItemForm" class="form-style content-manager-form" enctype="multipart/form-data">
+          <input type="hidden" id="contentItemId" />
+          <div class="content-form-grid">
+            <div class="content-field-span-full">
+              <label for="contentSection" class="content-field-label">Section</label>
+              <select id="contentSection" required>
+                <option value="achievements">NCC Cadet Achievements</option>
+                <option value="national-camps">BKBIET Cadets at National Camps</option>
+                <option value="gallery" selected>Students Gallery</option>
+              </select>
+            </div>
+            <div>
+              <label for="contentTitle" class="content-field-label">Title</label>
+              <input type="text" id="contentTitle" placeholder="Student Name / Title" />
+            </div>
+            <div>
+              <label for="contentSubtitle" class="content-field-label">Subtitle</label>
+              <input type="text" id="contentSubtitle" placeholder="Subtitle / Regimental No" />
+            </div>
+            <div id="contentFactsGroup" class="content-field-span-full">
+              <label for="contentFacts" class="content-field-label">Facts</label>
+              <textarea id="contentFacts" rows="3" placeholder="Facts, one per line.&#10;Example:&#10;DOB: 19.03.2003&#10;Camp: TSC 2023"></textarea>
+            </div>
+            <div id="contentHighlightGroup">
+              <label for="contentHighlight" class="content-field-label">Highlight</label>
+              <input type="text" id="contentHighlight" placeholder="Highlight text / achievement line" />
+            </div>
+            <div>
+              <label for="contentAltText" class="content-field-label">Image Alt Text</label>
+              <input type="text" id="contentAltText" placeholder="Image alt text" />
+            </div>
+            <div>
+              <label for="contentSortOrder" class="content-field-label">Sort Order</label>
+              <input type="number" id="contentSortOrder" placeholder="Sort order" value="0" />
+            </div>
+          </div>
+          <input type="hidden" id="contentImageUrl" />
+          <div class="content-upload-box">
+            <input type="file" id="contentImageFile" accept="image/*" />
+          </div>
+          <div class="inline-form-actions">
+            <button type="submit" id="contentSubmitBtn">Add Content</button>
+            <button type="button" id="contentCancelEditBtn" class="secondary-action hidden">Cancel Edit</button>
+          </div>
+        </form>
+        <p id="contentMessage"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MANAGE ASSETS POPUP -->
+  <div id="assetsPopup" class="popup hidden">
+    <div class="popup-content large-popup">
+      <div class="popup-header">
+        <h2>Manage Assets</h2>
+        <span class="close-btn" onclick="closeAdminPopup('assetsPopup')">&times;</span>
+      </div>
+
+      <div class="popup-body">
+        <div class="content-assets-toolbar">
+          <div class="content-assets-title">
+            <h4>Managed Assets</h4>
+            <p>Filter and search assets instead of scrolling the full list.</p>
+          </div>
+          <div class="content-assets-filters">
+            <select id="adminContentSectionFilter">
+              <option value="all">All Sections</option>
+              <option value="achievements">Achievements</option>
+              <option value="national-camps">National Camps</option>
+              <option value="gallery">Gallery</option>
+            </select>
+            <input type="text" id="adminContentSearchInput" placeholder="Search title, subtitle, facts..." />
+          </div>
+        </div>
+
+        <hr style="margin:15px 0;">
+
+        <div id="adminContentList" class="admin-content-list">
+          <p>Loading homepage content...</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <script src="script.js"></script>
 

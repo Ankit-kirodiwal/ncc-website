@@ -722,21 +722,29 @@ async function loadStudentNotes(token) {
     }
     // For admins, show notes with delete option
     if (adminNotesList) {
-      adminNotesList.innerHTML = notes.map(note => `
-        <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px; border-radius:8px;">
-          <strong>${note.title}</strong><br>
-          ${note.description || ""}<br>
-          ${note.fileName ? `<small>${note.fileName}</small><br>` : ""}
-          <a href="${resolveAssetLink(note.fileLink)}" target="_blank" rel="noopener noreferrer">Open Note</a><br><br>
-          <button onclick="deleteNote('${note._id}')">❌ Delete</button>
-        </div>
-      `).join("");
+      if (!notes || notes.length === 0) {
+        adminNotesList.innerHTML = `<p style="text-align:center; color:#64748b; padding:16px;">No notes uploaded yet.</p>`;
+      } else {
+        adminNotesList.innerHTML = notes.map(note => `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border:1px solid #e2e8f0; padding:12px 14px; margin-bottom:10px; border-radius:10px; background:#ffffff; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+            <div style="flex:1 1 auto; min-width:0;">
+              <h4 style="margin:0 0 4px; font-size:14px; font-weight:700; color:#0f172a;">${escapeHtml(note.title)}</h4>
+              ${note.description ? `<p style="margin:0 0 4px; font-size:12px; color:#64748b;">${escapeHtml(note.description)}</p>` : ""}
+              ${note.fileName ? `<p style="margin:0 0 8px; font-size:11px; color:#94a3b8; word-break:break-all;"><i class="fas fa-file-pdf" style="color:#ef4444; margin-right:4px;"></i>${escapeHtml(note.fileName)}</p>` : ""}
+              <a href="${resolveAssetLink(note.fileLink)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; color:#2563eb; text-decoration:none;">
+                <i class="fas fa-external-link-alt" style="font-size:11px;"></i> Open Note
+              </a>
+            </div>
+            <button type="button" class="delete-action" style="padding:6px 12px; font-size:12px; font-weight:600; border-radius:6px; cursor:pointer; background:#fee2e2; color:#dc2626; border:1px solid #fecaca; flex-shrink:0; transition:all 0.15s ease;" onclick="deleteNote('${note._id}')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          </div>
+        `).join("");
+      }
     }
-  }
-  
-  
-  catch (error) {
-    notesList.innerHTML = "<li>Error loading notes</li>";
+  } catch (error) {
+    if (notesList) notesList.innerHTML = "<li>Error loading notes</li>";
+    if (adminNotesList) adminNotesList.innerHTML = "<p>Error loading notes.</p>";
   }
 }
 
@@ -1544,3 +1552,4 @@ function resetContentManagerForm() {
 window.startEditContentItem = startEditContentItem;
 window.deleteContentItem = deleteContentItem;
 window.resetContentManagerForm = resetContentManagerForm;
+window.deleteNote = deleteNote;
