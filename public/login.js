@@ -15,6 +15,9 @@ function togglePassword(inputId) {
   }
 }
 
+let forgotOtpRequested = false;
+let forgotOtpVerified = false;
+
 function resetForgotPasswordSteps() {
   const s1 = document.getElementById("forgotStep1");
   const s2 = document.getElementById("forgotStep2");
@@ -49,6 +52,9 @@ function resetForgotPasswordSteps() {
   if (newPass) newPass.value = "";
   const confirmPass = document.getElementById("forgotConfirmPassword");
   if (confirmPass) confirmPass.value = "";
+
+  forgotOtpRequested = false;
+  forgotOtpVerified = false;
 
   const status = document.getElementById("forgotOtpStatus");
   if (status) {
@@ -96,6 +102,259 @@ function closeForgotPasswordPanel() {
   showMessage("", "green");
 }
 
+async function handleSendOtp() {
+  const forgotVal = (document.getElementById("forgotLoginId")?.value || "").trim();
+  const studentVal = (document.getElementById("studentLoginId")?.value || "").trim();
+  const loginId = forgotVal || studentVal;
+  const dob = (document.getElementById("forgotDob")?.value || "").trim();
+
+  const sendBtn = document.getElementById("sendOtpBtn");
+  const resendBtn = document.getElementById("resendOtpBtn");
+  const forgotStatus = document.getElementById("forgotOtpStatus");
+  const forgotInstruction = document.getElementById("forgotInstruction");
+  const forgotStep2 = document.getElementById("forgotStep2");
+  const forgotLoginIdInput = document.getElementById("forgotLoginId");
+  const forgotDobInput = document.getElementById("forgotDob");
+
+  if (!loginId || !dob) {
+    showMessage("Please enter your Email or Regimental No and Date of Birth first.", "red");
+    return;
+  }
+
+  if (forgotLoginIdInput) forgotLoginIdInput.value = loginId;
+
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.textContent = "Sending OTP...";
+  }
+  if (resendBtn) {
+    resendBtn.disabled = true;
+    resendBtn.textContent = "Sending...";
+  }
+
+  showMessage("Sending OTP, please wait...", "orange");
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/forgot-password/request-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginId, email: loginId, regimentalNo: loginId, dob })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      showMessage(result.message || "Unable to send OTP.", "red");
+      if (sendBtn) {
+        sendBtn.disabled = false;
+        sendBtn.textContent = "Send OTP";
+      }
+      if (resendBtn) {
+        resendBtn.disabled = false;
+        resendBtn.textContent = "Resend OTP";
+      }
+      return;
+    }
+
+    forgotOtpRequested = true;
+    if (forgotLoginIdInput) forgotLoginIdInput.disabled = true;
+    if (forgotDobInput) forgotDobInput.disabled = true;
+    if (sendBtn) sendBtn.style.display = "none";
+
+    if (forgotStep2) forgotStep2.hidden = false;
+    if (forgotInstruction) {
+      forgotInstruction.textContent = "Enter the 6-digit OTP sent to your registered email.";
+    }
+    if (forgotStatus) {
+      forgotStatus.hidden = false;
+      forgotStatus.textContent = `OTP sent to ${result.maskedEmail || "your registered email"}.`;
+    }
+    showMessage(result.message || "OTP sent successfully to your email.", "green");
+  } catch (error) {
+    console.error("Error requesting OTP:", error);
+    showMessage("Failed to connect to server while requesting OTP.", "red");
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send OTP";
+    }
+  } finally {
+    if (resendBtn) {
+      resendBtn.disabled = false;
+      resendBtn.textContent = "Resend OTP";
+    }
+  }
+}
+
+async function handleVerifyOtp() {
+  const loginId = (document.getElementById("forgotLoginId")?.value || "").trim();
+  const dob = (document.getElementById("forgotDob")?.value || "").trim();
+  const otp = (document.getElementById("forgotOtp")?.value || "").trim();
+
+  const verifyBtn = document.getElementById("verifyOtpBtn");
+  const forgotOtpInput = document.getElementById("forgotOtp");
+  const forgotStep3 = document.getElementById("forgotStep3");
+  const forgotInstruction = document.getElementById("forgotInstruction");
+  const forgotStatus = document.getElementById("forgotOtpStatus");
+
+  if (!loginId || !dob) {
+    showMessage("Please confirm your details first.", "red");
+    return;
+  }
+  if (!forgotOtpRequested) {
+    showMessage("Please request an OTP first.", "red");
+    return;
+  }
+  if (otp.length !== 6) {
+    showMessage("Please enter the 6-digit OTP sent to your email.", "red");
+    return;
+  }
+
+  if (verifyBtn) {
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = "Verifying...";
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/forgot-password/verify-otp-only`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginId, dob, otp })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      showMessage(result.message || "Invalid or expired OTP.", "red");
+      if (verifyBtn) {
+        verifyBtn.disabled = false;
+        verifyBtn.textContent = "Verify OTP";
+      }
+      return;
+    }
+
+    forgotOtpVerified = true;
+    if (forgotOtpInput) forgotOtpInput.disabled = true;
+    if (verifyBtn) {
+      verifyBtn.disabled = true;
+      verifyBtn.textContent = "Verified ✓";
+    }
+
+    if (forgotStep3) forgotStep3.hidden = false;
+    if (forgotInstruction) {
+      forgotInstruction.textContent = "OTP verified! Please enter your new password.";
+    }
+    if (forgotStatus) {
+      forgotStatus.hidden = false;
+      forgotStatus.textContent = "✓ OTP Verified successfully.";
+    }
+    showMessage("OTP verified successfully. Please enter your new password.", "green");
+  } catch (error) {
+    console.error("Error verifying OTP:", error);
+    showMessage("Failed to connect to server during OTP verification.", "red");
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = "Verify OTP";
+    }
+  }
+}
+
+function handleChangeDetails() {
+  const forgotLoginIdInput = document.getElementById("forgotLoginId");
+  const forgotDobInput = document.getElementById("forgotDob");
+  const sendBtn = document.getElementById("sendOtpBtn");
+  const forgotStep2 = document.getElementById("forgotStep2");
+  const forgotStep3 = document.getElementById("forgotStep3");
+  const forgotStatus = document.getElementById("forgotOtpStatus");
+  const forgotInstruction = document.getElementById("forgotInstruction");
+
+  if (forgotLoginIdInput) forgotLoginIdInput.disabled = false;
+  if (forgotDobInput) forgotDobInput.disabled = false;
+  if (sendBtn) {
+    sendBtn.style.display = "block";
+    sendBtn.disabled = false;
+    sendBtn.textContent = "Send OTP";
+  }
+  if (forgotStep2) forgotStep2.hidden = true;
+  if (forgotStep3) forgotStep3.hidden = true;
+  forgotOtpRequested = false;
+  forgotOtpVerified = false;
+  if (forgotStatus) {
+    forgotStatus.hidden = true;
+    forgotStatus.textContent = "";
+  }
+  if (forgotInstruction) {
+    forgotInstruction.textContent = "Confirm your details (Email/Regimental No and Date of Birth) to request an OTP.";
+  }
+}
+
+async function handleResetPasswordSubmit(e) {
+  e.preventDefault();
+
+  const loginId = (document.getElementById("forgotLoginId")?.value || "").trim();
+  const dob = (document.getElementById("forgotDob")?.value || "").trim();
+  const otp = (document.getElementById("forgotOtp")?.value || "").trim();
+  const newPassword = document.getElementById("forgotNewPassword")?.value || "";
+  const confirmPassword = document.getElementById("forgotConfirmPassword")?.value || "";
+  const resetBtn = document.getElementById("resetPasswordSubmitBtn");
+
+  if (!forgotOtpRequested) {
+    showMessage("Please request an OTP first.", "red");
+    return;
+  }
+  if (!forgotOtpVerified) {
+    showMessage("Please click 'Verify OTP' to verify your OTP first.", "red");
+    return;
+  }
+  if (!newPassword || !confirmPassword) {
+    showMessage("Please enter your new password and confirm it.", "red");
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    showMessage("New password and confirm password do not match.", "red");
+    return;
+  }
+  if (newPassword.length < 6) {
+    showMessage("New password must be at least 6 characters.", "red");
+    return;
+  }
+
+  if (resetBtn) {
+    resetBtn.disabled = true;
+    resetBtn.textContent = "Resetting Password...";
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/auth/forgot-password/verify-otp`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginId, dob, otp, newPassword })
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      showMessage(result.message || "Unable to reset password.", "red");
+      if (resetBtn) {
+        resetBtn.disabled = false;
+        resetBtn.textContent = "Reset Password";
+      }
+      return;
+    }
+
+    const studentLoginIdInput = document.getElementById("studentLoginId");
+    if (studentLoginIdInput) studentLoginIdInput.value = loginId;
+    closeForgotPasswordPanel();
+    showMessage(result.message || "Password reset successful. Please log in with your new password.", "green");
+  } catch (error) {
+    console.error("Error resetting password:", error);
+    showMessage("Something went wrong during password reset", "red");
+    if (resetBtn) {
+      resetBtn.disabled = false;
+      resetBtn.textContent = "Reset Password";
+    }
+  }
+}
+
 function showTab(tabId) {
   try {
     closeForgotPasswordPanel();
@@ -136,6 +395,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const forgotCancel = document.getElementById("forgotPasswordCancel");
   if (forgotToggle) forgotToggle.addEventListener("click", openForgotPasswordPanel);
   if (forgotCancel) forgotCancel.addEventListener("click", closeForgotPasswordPanel);
+
+  const sendOtpBtn = document.getElementById("sendOtpBtn");
+  if (sendOtpBtn) sendOtpBtn.addEventListener("click", handleSendOtp);
+
+  const resendOtpBtn = document.getElementById("resendOtpBtn");
+  if (resendOtpBtn) resendOtpBtn.addEventListener("click", handleSendOtp);
+
+  const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+  if (verifyOtpBtn) verifyOtpBtn.addEventListener("click", handleVerifyOtp);
+
+  const changeDetailsBtn = document.getElementById("changeDetailsBtn");
+  if (changeDetailsBtn) changeDetailsBtn.addEventListener("click", handleChangeDetails);
+
+  const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+  if (forgotPasswordForm) forgotPasswordForm.addEventListener("submit", handleResetPasswordSubmit);
 
   document.querySelectorAll(".tab-btn").forEach((btn) => {
     btn.addEventListener("click", (e) => {

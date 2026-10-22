@@ -19,30 +19,42 @@ async function resolveIpv4Host(targetHost) {
 }
 
 function getMailConfigError() {
-  if (!process.env.MAIL_HOST || !process.env.MAIL_PORT || !process.env.MAIL_USER || !(process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS)) {
-    return "Mail service is not configured. Please set MAIL_HOST, MAIL_PORT, MAIL_USER, and MAIL_PASS in .env.";
+  // Option 1: Brevo HTTPS API (Recommended for Render free tier over HTTPS Port 443)
+  if (process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY) {
+    const sender = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER;
+    if (!sender) {
+      return "Brevo API key is set, but sender email is missing. Please set BREVO_SENDER_EMAIL or MAIL_FROM in your environment variables.";
+    }
+    return null;
+  }
+
+  // Option 2: Resend HTTPS API
+  if (process.env.RESEND_API_KEY) {
+    return null;
+  }
+
+  // Option 3: Brevo SMTP relay or standard SMTP
+  const host = process.env.MAIL_HOST || (process.env.BREVO_SMTP_KEY ? "smtp-relay.brevo.com" : null);
+  const user = process.env.MAIL_USER || process.env.BREVO_USER;
+  const pass = process.env.BREVO_SMTP_KEY || process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS;
+
+  if (!host || !user || !pass) {
+    return "Mail service is not configured. For Render free tier, set BREVO_API_KEY and BREVO_SENDER_EMAIL (or MAIL_FROM), or configure Brevo SMTP (MAIL_HOST=smtp-relay.brevo.com, MAIL_USER, MAIL_PASS).";
   }
 
   return null;
 }
 
 async function createTransporter(overrideConfig = {}) {
-  const configError = getMailConfigError();
-
-  if (configError) {
-    const error = new Error(configError);
-    error.code = "MAIL_NOT_CONFIGURED";
-    throw error;
-  }
-
-  const mailHost = process.env.MAIL_HOST || "smtp.gmail.com";
+  const mailHost = process.env.MAIL_HOST || (process.env.BREVO_SMTP_KEY ? "smtp-relay.brevo.com" : "smtp.gmail.com");
   const isGmail = mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail";
-  const targetHost = isGmail ? "smtp.gmail.com" : mailHost;
+  const isBrevo = mailHost.includes("brevo") || mailHost.includes("sendinblue");
+  const targetHost = isGmail ? "smtp.gmail.com" : (isBrevo ? "smtp-relay.brevo.com" : mailHost);
 
   const resolvedIp = await resolveIpv4Host(targetHost);
 
-  let port = 465;
-  let secure = true;
+  let port = 587;
+  let secure = false;
 
   if (overrideConfig.port !== undefined) {
     port = overrideConfig.port;
@@ -50,15 +62,21 @@ async function createTransporter(overrideConfig = {}) {
   } else if (!isGmail && process.env.MAIL_PORT) {
     port = Number(process.env.MAIL_PORT);
     secure = String(process.env.MAIL_SECURE).toLowerCase() === "true" || port === 465;
+  } else if (isGmail) {
+    port = 465;
+    secure = true;
   }
+
+  const user = process.env.MAIL_USER || process.env.BREVO_USER;
+  const pass = process.env.BREVO_SMTP_KEY || process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS;
 
   let transportOptions = {
     host: resolvedIp,
     port: port,
     secure: secure,
     auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
+      user: user,
+      pass: pass
     },
     tls: {
       servername: targetHost,
@@ -94,12 +112,13 @@ async function sendMailWithTransporter(transporter, mailOptions) {
 }
 
 async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
-  const fromAddress = process.env.MAIL_FROM || process.env.MAIL_USER;
+  const fromEmail = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER || "noreply@bkbietncc.in";
+  const fromName = process.env.MAIL_FROM_NAME || "NCC Portal";
   const safeName = escapeHtml(studentName || "Cadet");
   const safeOtp = escapeHtml(String(otp || ""));
 
   const mailOptions = {
-    from: fromAddress,
+    from: `"${fromName}" <${fromEmail}>`,
     to: toEmail,
     subject: "NCC Portal Password Reset OTP",
     text: [
@@ -121,9 +140,46 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   `
   };
 
-  // HTTPS API Fallback 1: Resend API (Port 443 - never blocked on Render)
+  // Method 1: Brevo HTTPS API (Port 443 - Recommended for Render free tier where raw SMTP is blocked)
+  const brevoApiKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
+  if (brevoApiKey) {
+    try {
+      console.log(`[Brevo API] Sending OTP to ${toEmail} using sender: ${fromEmail}...`);
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "api-key": brevoApiKey
+        },
+        body: JSON.stringify({
+          sender: { name: fromName, email: fromEmail },
+          to: [{ email: toEmail, name: studentName || "Cadet" }],
+          subject: "NCC Portal Password Reset OTP",
+          htmlContent: mailOptions.html,
+          textContent: mailOptions.text
+        })
+      });
+
+      const responseBody = await res.json().catch(() => ({}));
+      if (res.ok) {
+        console.log(`✅ [Brevo API] OTP email delivered to ${toEmail}! MessageId: ${responseBody.messageId || "ok"}`);
+        return;
+      }
+
+      console.error(`❌ [Brevo API] Error ${res.status}:`, responseBody);
+      if (responseBody && responseBody.message) {
+        console.warn(`[Brevo API] Details: ${responseBody.message}`);
+      }
+    } catch (apiErr) {
+      console.error("[Brevo API] Network request error:", apiErr.message || apiErr);
+    }
+  }
+
+  // Method 2: Resend HTTPS API (Port 443 fallback)
   if (process.env.RESEND_API_KEY) {
     try {
+      console.log(`[Resend API] Sending OTP email to ${toEmail}...`);
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -134,92 +190,88 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
           from: process.env.MAIL_FROM || "NCC Portal <onboarding@resend.dev>",
           to: [toEmail],
           subject: "NCC Portal Password Reset OTP",
-          html: mailOptions.html
+          html: mailOptions.html,
+          text: mailOptions.text
         })
       });
 
       if (res.ok) {
-        console.log("✅ OTP email delivered via Resend HTTPS API!");
+        console.log(`✅ [Resend API] OTP email delivered to ${toEmail}!`);
         return;
       }
-      const errRes = await res.json();
+      const errRes = await res.json().catch(() => ({}));
       console.warn("Resend API error response:", errRes);
     } catch (apiErr) {
       console.warn("Resend API request failed:", apiErr.message || apiErr);
     }
   }
 
-  // HTTPS API Fallback 2: Brevo API (Port 443 - never blocked on Render)
-  if (process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY) {
-    const apiKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
-    try {
-      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-          "api-key": apiKey
-        },
-        body: JSON.stringify({
-          sender: { name: "NCC Portal", email: process.env.MAIL_USER || "noreply@bkbietncc.in" },
-          to: [{ email: toEmail, name: studentName || "Cadet" }],
-          subject: "NCC Portal Password Reset OTP",
-          htmlContent: mailOptions.html
-        })
-      });
+  // Method 3: SMTP Transports (Brevo SMTP relay / Gmail SMTP / Custom SMTP)
+  const mailHost = process.env.MAIL_HOST || (process.env.BREVO_SMTP_KEY ? "smtp-relay.brevo.com" : "smtp.gmail.com");
+  const isBrevo = mailHost.includes("brevo") || mailHost.includes("sendinblue");
 
-      if (res.ok) {
-        console.log("✅ OTP email delivered via Brevo HTTPS API!");
-        return;
-      }
-      const errRes = await res.json();
-      console.warn("Brevo API error response:", errRes);
-    } catch (apiErr) {
-      console.warn("Brevo API request failed:", apiErr.message || apiErr);
-    }
-  }
-
-  // SMTP Attempt 1: Port 465 SSL (IPv4 direct)
+  // SMTP Attempt 1: Port 587 STARTTLS (standard for Brevo SMTP and Gmail)
   try {
-    const primaryTransporter = await createTransporter({ port: 465, secure: true });
-    await sendMailWithTransporter(primaryTransporter, mailOptions);
-    return;
-  } catch (primaryErr) {
-    console.warn("Port 465 SSL transport failed, trying Port 587 STARTTLS...", primaryErr.message || primaryErr);
-  }
-
-  // SMTP Attempt 2: Port 587 STARTTLS (IPv4 direct)
-  try {
-    const fallbackTransporter587 = await createTransporter({ port: 587, secure: false });
-    await sendMailWithTransporter(fallbackTransporter587, mailOptions);
+    const transporter587 = await createTransporter({ port: 587, secure: false });
+    await sendMailWithTransporter(transporter587, mailOptions);
+    console.log(`✅ OTP email delivered via SMTP port 587 (${mailHost}) to ${toEmail}`);
     return;
   } catch (err587) {
-    console.warn("Port 587 transport failed, trying Nodemailer service:'gmail'...", err587.message || err587);
+    console.warn(`SMTP Port 587 failed on ${mailHost}:`, err587.message || err587);
   }
 
-  // SMTP Attempt 3: Nodemailer standard Gmail service
-  try {
-    const gmailTransporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
-      },
-      connectionTimeout: 10000
-    });
-    await sendMailWithTransporter(gmailTransporter, mailOptions);
-    return;
-  } catch (gmailErr) {
-    console.error("All mail transports failed:", gmailErr.message || gmailErr);
-    if (gmailErr && gmailErr.code === "EAUTH") {
-      const authError = new Error("Gmail rejected the SMTP login. Use a Google App Password for MAIL_PASS and keep 2-Step Verification enabled.");
-      authError.code = gmailErr.code;
-      throw authError;
+  // SMTP Attempt 2: If Brevo SMTP, try Port 2525 (Brevo official alternate port)
+  if (isBrevo) {
+    try {
+      const transporter2525 = await createTransporter({ port: 2525, secure: false });
+      await sendMailWithTransporter(transporter2525, mailOptions);
+      console.log(`✅ OTP email delivered via Brevo SMTP port 2525 to ${toEmail}`);
+      return;
+    } catch (err2525) {
+      console.warn("Brevo SMTP Port 2525 failed:", err2525.message || err2525);
     }
-    const renderError = new Error("Render free tier blocks raw SMTP ports 465 & 587. Please add RESEND_API_KEY or BREVO_API_KEY to your Render environment variables to send OTP emails over HTTPS (Port 443).");
-    renderError.code = "RENDER_SMTP_BLOCKED";
-    throw renderError;
   }
+
+  // SMTP Attempt 3: Port 465 SSL
+  try {
+    const transporter465 = await createTransporter({ port: 465, secure: true });
+    await sendMailWithTransporter(transporter465, mailOptions);
+    console.log(`✅ OTP email delivered via SMTP port 465 SSL (${mailHost}) to ${toEmail}`);
+    return;
+  } catch (primaryErr) {
+    console.warn(`SMTP Port 465 failed on ${mailHost}:`, primaryErr.message || primaryErr);
+  }
+
+  // SMTP Attempt 4: Nodemailer standard Gmail service (if Gmail host)
+  if (mailHost.includes("gmail") || process.env.MAIL_SERVICE === "gmail") {
+    try {
+      const gmailTransporter = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS
+        },
+        connectionTimeout: 10000
+      });
+      await sendMailWithTransporter(gmailTransporter, mailOptions);
+      console.log(`✅ OTP email delivered via Nodemailer Gmail service to ${toEmail}`);
+      return;
+    } catch (gmailErr) {
+      console.error("Gmail service transport failed:", gmailErr.message || gmailErr);
+      if (gmailErr && gmailErr.code === "EAUTH") {
+        const authError = new Error("Gmail rejected the SMTP login. Use a Google App Password for MAIL_PASS and keep 2-Step Verification enabled.");
+        authError.code = gmailErr.code;
+        throw authError;
+      }
+    }
+  }
+
+  const renderError = new Error(
+    "Failed to send email. Render free tier blocks outbound SMTP ports (465 & 587). " +
+    "To send OTP emails reliably on Render, set BREVO_API_KEY and BREVO_SENDER_EMAIL (or MAIL_FROM) in your Render environment variables to send via HTTPS (Port 443)."
+  );
+  renderError.code = "RENDER_SMTP_BLOCKED";
+  throw renderError;
 }
 
 module.exports = {
