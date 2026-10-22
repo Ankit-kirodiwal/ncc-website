@@ -19,11 +19,11 @@ async function resolveIpv4Host(targetHost) {
 }
 
 function getMailConfigError() {
-  // Option 1: Brevo HTTPS API (Recommended for Render free tier over HTTPS Port 443)
-  if (process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY) {
-    const sender = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER;
+  const brevoApiKey = (process.env.BREVO_API_KEY || process.env.BRAVO_API_KEY || process.env.BREVO_KEY || process.env.BRAVO_KEY || process.env.SENDINBLUE_API_KEY || "").trim();
+  if (brevoApiKey) {
+    const sender = (process.env.BREVO_SENDER_EMAIL || process.env.BRAVO_SENDER_EMAIL || process.env.BREVO_EMAIL || process.env.BRAVO_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER || "").trim();
     if (!sender) {
-      return "Brevo API key is set, but sender email is missing. Please set BREVO_SENDER_EMAIL or MAIL_FROM in your environment variables.";
+      return "Brevo API key is set, but sender email is missing. Please set BREVO_SENDER_EMAIL (or MAIL_FROM) to your verified Brevo email in Render environment variables.";
     }
     return null;
   }
@@ -39,7 +39,7 @@ function getMailConfigError() {
   const pass = process.env.BREVO_SMTP_KEY || process.env.MAIL_APP_PASSWORD || process.env.GMAIL_APP_PASSWORD || process.env.MAIL_PASS;
 
   if (!host || !user || !pass) {
-    return "Mail service is not configured. For Render free tier, set BREVO_API_KEY and BREVO_SENDER_EMAIL (or MAIL_FROM), or configure Brevo SMTP (MAIL_HOST=smtp-relay.brevo.com, MAIL_USER, MAIL_PASS).";
+    return "Mail service is not configured. For Render free tier, set BREVO_API_KEY and BREVO_SENDER_EMAIL (or MAIL_FROM) in your Render environment variables.";
   }
 
   return null;
@@ -112,7 +112,7 @@ async function sendMailWithTransporter(transporter, mailOptions) {
 }
 
 async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
-  const fromEmail = process.env.BREVO_SENDER_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER || "noreply@bkbietncc.in";
+  const fromEmail = (process.env.BREVO_SENDER_EMAIL || process.env.BRAVO_SENDER_EMAIL || process.env.BREVO_EMAIL || process.env.BRAVO_EMAIL || process.env.MAIL_FROM || process.env.MAIL_USER || "").trim() || "noreply@bkbietncc.in";
   const fromName = process.env.MAIL_FROM_NAME || "NCC Portal";
   const safeName = escapeHtml(studentName || "Cadet");
   const safeOtp = escapeHtml(String(otp || ""));
@@ -141,10 +141,10 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
   };
 
   // Method 1: Brevo HTTPS API (Port 443 - Recommended for Render free tier where raw SMTP is blocked)
-  const brevoApiKey = process.env.BREVO_API_KEY || process.env.SENDINBLUE_API_KEY;
+  const brevoApiKey = (process.env.BREVO_API_KEY || process.env.BRAVO_API_KEY || process.env.BREVO_KEY || process.env.BRAVO_KEY || process.env.SENDINBLUE_API_KEY || "").trim();
   if (brevoApiKey) {
+    console.log(`[Brevo API] Sending OTP email to ${toEmail} using sender: ${fromEmail}...`);
     try {
-      console.log(`[Brevo API] Sending OTP to ${toEmail} using sender: ${fromEmail}...`);
       const res = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
@@ -168,12 +168,26 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
       }
 
       console.error(`❌ [Brevo API] Error ${res.status}:`, responseBody);
-      if (responseBody && responseBody.message) {
-        console.warn(`[Brevo API] Details: ${responseBody.message}`);
+      const detail = responseBody?.message || JSON.stringify(responseBody);
+      let suggestion = "";
+      if (res.status === 400 || responseBody?.code === "invalid_parameter") {
+        suggestion = ` Please check that '${fromEmail}' is listed and verified under Senders in your Brevo account dashboard, and set BREVO_SENDER_EMAIL in Render.`;
+      } else if (res.status === 401 || responseBody?.code === "unauthorized") {
+        suggestion = " The Brevo API key was rejected (Unauthorized). Please generate a new API key in Brevo (SMTP & API -> API Keys) and update BREVO_API_KEY in Render.";
       }
+
+      const brevoErr = new Error(`Brevo Error (${res.status}): ${detail}.${suggestion}`);
+      brevoErr.code = "BREVO_API_ERROR";
+      throw brevoErr;
     } catch (apiErr) {
+      if (apiErr.code === "BREVO_API_ERROR") {
+        throw apiErr;
+      }
       console.error("[Brevo API] Network request error:", apiErr.message || apiErr);
+      throw new Error(`Brevo network request failed: ${apiErr.message}`);
     }
+  } else {
+    console.warn("[MailService] No BREVO_API_KEY detected in environment variables. Falling back to SMTP...");
   }
 
   // Method 2: Resend HTTPS API (Port 443 fallback)
@@ -268,7 +282,7 @@ async function sendPasswordResetOtp({ toEmail, studentName, otp }) {
 
   const renderError = new Error(
     "Failed to send email. Render free tier blocks outbound SMTP ports (465 & 587). " +
-    "To send OTP emails reliably on Render, set BREVO_API_KEY and BREVO_SENDER_EMAIL (or MAIL_FROM) in your Render environment variables to send via HTTPS (Port 443)."
+    "To send OTP emails reliably on Render, set BREVO_API_KEY and BREVO_SENDER_EMAIL in your Render environment variables (and click 'Save Changes')."
   );
   renderError.code = "RENDER_SMTP_BLOCKED";
   throw renderError;
