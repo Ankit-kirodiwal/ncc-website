@@ -102,6 +102,22 @@ function closeForgotPasswordPanel() {
   showMessage("", "green");
 }
 
+async function parseResponseSafe(res) {
+  try {
+    const text = await res.text();
+    try {
+      return JSON.parse(text);
+    } catch (_) {
+      if (res.status === 502 || res.status === 503 || res.status === 504) {
+        return { message: "Server is currently starting up on Render. Please wait ~15 seconds and try again." };
+      }
+      return { message: text || `Server responded with status ${res.status}` };
+    }
+  } catch (err) {
+    return { message: "Network connection error. Please check your connection." };
+  }
+}
+
 async function handleSendOtp() {
   const forgotVal = (document.getElementById("forgotLoginId")?.value || "").trim();
   const studentVal = (document.getElementById("studentLoginId")?.value || "").trim();
@@ -141,7 +157,7 @@ async function handleSendOtp() {
       body: JSON.stringify({ loginId, email: loginId, regimentalNo: loginId, dob })
     });
 
-    const result = await res.json();
+    const result = await parseResponseSafe(res);
 
     if (!res.ok) {
       showMessage(result.message || "Unable to send OTP.", "red");
@@ -221,7 +237,7 @@ async function handleVerifyOtp() {
       body: JSON.stringify({ loginId, dob, otp })
     });
 
-    const result = await res.json();
+    const result = await parseResponseSafe(res);
 
     if (!res.ok) {
       showMessage(result.message || "Invalid or expired OTP.", "red");
@@ -330,7 +346,7 @@ async function handleResetPasswordSubmit(e) {
       body: JSON.stringify({ loginId, dob, otp, newPassword })
     });
 
-    const result = await res.json();
+    const result = await parseResponseSafe(res);
 
     if (!res.ok) {
       showMessage(result.message || "Unable to reset password.", "red");
